@@ -209,35 +209,37 @@ export const Home: React.FC = () => {
                     </div>
 
                     <div className="slider-container">
-                        <div
-                            onTransitionEnd={() => {
-                                if (currentIndex >= offers.length) {
-                                    setTransitionEnabled(false);
-                                    setCurrentIndex(0);
-                                } else if (currentIndex <= -1) {
-                                    setTransitionEnabled(false);
-                                    setCurrentIndex(offers.length - 1);
-                                }
-                            }}
-                            className="slider-track"
-                            style={{
-                                display: 'flex',
-                                transition: transitionEnabled ? 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)' : 'none',
-                                transform: `translateX(calc(-${(offers.length + currentIndex) * (100 / (window.innerWidth < 768 ? 1 : 4))}%))`
-                            }}
-                        >
-                            {[...offers, ...offers, ...offers].map((p, idx) => (
-                                <div key={`${p.id}-${idx}`} className="slider-item">
-                                    <ProductCard producto={p} />
-                                </div>
-                            ))}
+                        <div className="slider-viewport">
+                            <div
+                                onTransitionEnd={() => {
+                                    if (currentIndex >= offers.length) {
+                                        setTransitionEnabled(false);
+                                        setCurrentIndex(0);
+                                    } else if (currentIndex <= -1) {
+                                        setTransitionEnabled(false);
+                                        setCurrentIndex(offers.length - 1);
+                                    }
+                                }}
+                                className="slider-track"
+                                style={{
+                                    display: 'flex',
+                                    transition: transitionEnabled ? 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)' : 'none',
+                                    transform: `translateX(calc(-${(offers.length + currentIndex) * (100 / (window.innerWidth < 768 ? 1 : 4))}%))`
+                                }}
+                            >
+                                {[...offers, ...offers, ...offers].map((p, idx) => (
+                                    <div key={`${p.id}-${idx}`} className="slider-item">
+                                        <ProductCard producto={p} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <button onClick={prevSlide} className="slider-arrow prev">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><path d="m15 18-6-6 6-6" /></svg>
+                        <button onClick={prevSlide} className="slider-arrow prev" aria-label="Anterior">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m15 18-6-6 6-6" /></svg>
                         </button>
-                        <button onClick={nextSlide} className="slider-arrow next">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><path d="m9 18 6-6-6-6" /></svg>
+                        <button onClick={nextSlide} className="slider-arrow next" aria-label="Siguiente">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6" /></svg>
                         </button>
                     </div>
 
@@ -459,36 +461,98 @@ export const Home: React.FC = () => {
                 .section-title { font-size: 2.8rem; font-weight: 900; margin-bottom: 1.5rem; letter-spacing: -1px; }
                 
                 .countdown-wrapper { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 4rem; align-items: center; flex-wrap: wrap; }
-                .countdown-items { display: flex; gap: 1rem; }
-                .countdown-item { display: flex; alignItems: baseline; gap: 6px; }
-                .countdown-val { font-size: 1.8rem; fontWeight: 900; color: var(--accent); }
-                .countdown-unit { font-size: 0.85rem; fontWeight: 700; color: #888; textTransform: uppercase; }
+                .countdown-items { display: flex; gap: 1.5rem; }
+                .countdown-item { display: flex; align-items: baseline; gap: 8px; }
+                .countdown-val { font-size: 2.2rem; font-weight: 900; color: var(--accent); }
+                .countdown-unit { font-size: 0.9rem; font-weight: 800; color: #888; text-transform: uppercase; }
 
-                .slider-container { position: relative; width: 100%; overflow: hidden; padding: 10px 0; }
-                .slider-item { flex: 0 0 25%; padding: 0 10px; }
-                .slider-arrow { position: absolute; top: 50%; transform: translateY(-50%); background-color: #fff; border: 1px solid #eee; width: 45px; height: 45px; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; }
-                .slider-arrow.prev { left: 10px; }
-                .slider-arrow.next { right: 10px; }
+                .slider-container { 
+                    position: relative; 
+                    width: 100%; 
+                    padding: 20px 0;
+                    margin: 0 auto;
+                }
+                .slider-viewport {
+                    overflow: hidden;
+                    width: 100%;
+                    padding: 10px 0;
+                }
+                .slider-track {
+                    display: flex;
+                }
+                .slider-item { 
+                    flex: 0 0 25%; 
+                    padding: 0 12px; 
+                }
                 
-                .progress-bar-bg { width: 100%; height: 2px; backgroundColor: #E5E5E5; margin-top: 4rem; position: relative; }
-                .progress-bar-fill { position: absolute; height: 100%; backgroundColor: #000; }
+                .slider-arrow { 
+                    position: absolute; 
+                    top: 40%; /* Centered more towards the product image area */
+                    transform: translateY(-50%); 
+                    background-color: #fff; 
+                    border: 1px solid #eee; 
+                    width: 50px; 
+                    height: 50px; 
+                    border-radius: 50%; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    z-index: 30; 
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.1); 
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    color: #000;
+                }
+                .slider-arrow:hover {
+                    background-color: var(--primary);
+                    border-color: var(--primary);
+                    transform: translateY(-50%) scale(1.1);
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                }
+                .slider-arrow:active {
+                    transform: translateY(-50%) scale(0.95);
+                }
+                .slider-arrow.prev { left: -25px; }
+                .slider-arrow.next { right: -25px; }
                 
-                .trust-badges-section { background: var(--primary); padding: 4rem 0; color: #000; }
-                .trust-badges-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
-                .trust-badge { textAlign: center; }
-                .badge-icon { margin-bottom: 1rem; }
+                .progress-bar-bg { 
+                    width: 100%; 
+                    height: 4px; 
+                    background-color: #eee; 
+                    margin-top: 4rem; 
+                    position: relative; 
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+                .progress-bar-fill { 
+                    position: absolute; 
+                    height: 100%; 
+                    background-color: var(--primary); 
+                    border-radius: 10px;
+                }
+                
+                .trust-badges-section { background: var(--primary); padding: 5rem 0; color: #000; }
+                .trust-badges-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
+                .trust-badge { text-align: center; }
+                .badge-icon { margin-bottom: 1.5rem; }
+
+                @media (max-width: 1200px) {
+                    .slider-item { flex: 0 0 33.333%; }
+                    .slider-arrow.prev { left: 10px; }
+                    .slider-arrow.next { right: 10px; }
+                }
 
                 @media (max-width: 992px) {
                     .promo-item { grid-column: span 12; }
                     .slider-item { flex: 0 0 50%; }
-                    .trust-badges-grid { grid-template-columns: 1fr; }
+                    .trust-badges-grid { grid-template-columns: 1fr; gap: 4rem; }
                 }
                 
                 @media (max-width: 768px) {
                     .section-title { font-size: 2rem; }
                     .slider-item { flex: 0 0 100%; }
-                    .promo-price-large { font-size: 3.5rem; }
                     .countdown-wrapper { flex-direction: column; gap: 1rem; }
+                    .slider-arrow { display: none; }
                 }
             `}</style>
 
