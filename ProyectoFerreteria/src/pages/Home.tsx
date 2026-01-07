@@ -120,8 +120,8 @@ export const Home: React.FC = () => {
                                 ROTOMARTILLO <br /> <span>1500W</span>
                             </div>
                         </div>
-                        <div className="card-image">
-                            <img src="https://ferreteriaspacco.com/cdn/shop/files/ROTOMARTILLO_TOTAL_TH1153216.png?v=1711656842&width=400" alt="Rotomartillo" />
+                        <div className="card-image ">
+                            <img src="https://promart.vteximg.com.br/arquivos/ids/1197572-700-700/13391.jpg?v=637600648209900000" alt="Rotomartillo" />
                         </div>
                         <div className="card-footer-yellow">1500W</div>
                     </div>
@@ -137,8 +137,8 @@ export const Home: React.FC = () => {
                                 NIVEL LASER <br /> <span>16 LÍNEAS</span>
                             </div>
                         </div>
-                        <div className="card-image smaller-img">
-                            <img src="https://ferreteriaspacco.com/cdn/shop/products/TMMTD20003.png?v=1711656842&width=400" alt="Nivel Laser" />
+                        <div className="card-image">
+                            <img src="https://oechsle.vteximg.com.br/arquivos/ids/20600880-1000-1000/imageUrl_1.jpg?v=638767842562000000" alt="Nivel Laser" />
                         </div>
                         <div className="card-footer-yellow">16 LÍNEAS</div>
                     </div>
@@ -155,7 +155,7 @@ export const Home: React.FC = () => {
                             </div>
                         </div>
                         <div className="card-image-main">
-                            <img src="https://ferreteriaspacco.com/cdn/shop/products/TIDLI20025.png?v=1711656842&width=600" alt="Taladro" />
+                            <img src="https://promart.vteximg.com.br/arquivos/ids/9851186/Taladro-20v-y-Set-de-Herramientas-165-pcs-Total-THKTHP11652.jpg?v=639012445195600000" alt="Taladro" />
                         </div>
                         <div className="card-badge">
                             <Logo width={40} />
@@ -175,7 +175,7 @@ export const Home: React.FC = () => {
                             </div>
                         </div>
                         <div className="card-image-main floating">
-                            <img src="https://ferreteriaspacco.com/cdn/shop/files/WADFOW_WCP1501.png?v=1711656842&width=400" alt="Hidrolavadora" />
+                            <img src="https://dojiw2m9tvv09.cloudfront.net/48473/product/X_hila-1800-28158.jpg?81&time=1767285449" alt="Hidrolavadora" />
                         </div>
                         <div className="card-badge">
                             <Logo width={40} />
