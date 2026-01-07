@@ -1,12 +1,12 @@
 import React from 'react';
 
 const brands = [
-    { name: 'Truper', logo: 'https://cdn.worldvectorlogo.com/logos/truper-1.svg', bgColor: '#2D3233' },
-    { name: 'Dong Cheng', logo: 'https://ferreteriaspacco.com/cdn/shop/collections/LG-DONG-CHENG.jpg?v=1747035933&width=185', bgColor: '#0057A0' },
+    { name: 'Truper', logo: 'https://carpintec.com.pe/cdn/shop/collections/HERRAMIENTAS_DE_CARPINTERIA_TRUPER_1080x1080.jpg?v=1738016775', bgColor: '#2D3233' },
+    { name: 'Dong Cheng', logo: 'https://www.dongcheng.com.ar/wp-content/uploads/2013/06/Logo-DongCheng-13.jpg', bgColor: '#0057A0' },
     { name: 'Ferton', logo: 'https://ferreteriaspacco.com/cdn/shop/collections/LG-FERTON.jpg?v=1747035911&width=185', bgColor: '#000' },
     { name: 'Hermex', logo: 'https://ferreteriaspacco.com/cdn/shop/collections/LG-HERMEX.jpg?v=1747035898&width=185', bgColor: '#000' },
-    { name: 'Makute', logo: 'https://ferreteriaspacco.com/cdn/shop/collections/LG-MAKUTE-150x150.jpg?v=1747035877&width=185', bgColor: '#01418F' },
-    { name: 'Uyustools', logo: 'https://ferreteriaspacco.com/cdn/shop/collections/LG-UYUSTOOLS.jpg?v=1747035923&width=185', bgColor: '#FDB913' },
+    { name: 'Makute', logo: 'https://ferreteriaspacco.com/cdn/shop/collections/LG-MAKUTE-150x150.jpg?v=1747035877&width=300', bgColor: '#01418F' },
+    { name: 'Uyustools', logo: 'https://ferreteriaspacco.com/cdn/shop/collections/LG-UYUSTOOLS.jpg?v=1747035923&width=300', bgColor: '#FDB913' },
 ];
 
 export const BrandsSection: React.FC = () => {
@@ -78,8 +78,8 @@ export const BrandsSection: React.FC = () => {
                     transform: scale(1.05);
                 }
                 .brand-img {
-                    width: 80%;
-                    height: 80%;
+                    width: 100%;
+                    height: 100%;
                     object-fit: contain;
                     filter: brightness(1.1);
                 }

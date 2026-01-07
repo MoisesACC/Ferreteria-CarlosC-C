@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Star,
@@ -9,9 +9,10 @@ import {
     Truck,
     Undo,
     ShieldCheck,
-    ArrowLeft,
+    ChevronRight,
     Share2,
-    Heart
+    Heart,
+    Check
 } from 'lucide-react';
 import type { Producto } from '../types';
 import api from '../api/api';
@@ -27,6 +28,7 @@ export const ProductDetails: React.FC = () => {
     const [activeImage, setActiveImage] = useState<string>('');
     const [cantidad, setCantidad] = useState(1);
     const [selectedTab, setSelectedTab] = useState('detail');
+    const [isAdded, setIsAdded] = useState(false);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -44,6 +46,14 @@ export const ProductDetails: React.FC = () => {
         window.scrollTo(0, 0);
     }, [id]);
 
+    const handleAddToCart = () => {
+        if (product) {
+            addToCart(product, cantidad);
+            setIsAdded(true);
+            setTimeout(() => setIsAdded(false), 2000);
+        }
+    };
+
     if (loading) return (
         <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="loader"></div>
@@ -53,244 +63,297 @@ export const ProductDetails: React.FC = () => {
     if (!product) return (
         <div style={{ minHeight: '80vh', textAlign: 'center', padding: '5rem' }}>
             <h2>Producto no encontrado</h2>
-            <button onClick={() => navigate('/productos')} className="btn-primary" style={{ marginTop: '2rem' }}>Regresar a tienda</button>
+            <button onClick={() => navigate('/productos')} className="btn-primary" style={{ marginTop: '2rem', padding: '12px 24px', borderRadius: '12px' }}>Regresar a tienda</button>
         </div>
     );
 
     const allImages = [product.imagen, ...(product.imagenesAdicionales || []).filter(img => img)];
 
     return (
-        <div className="product-details-page">
-            <div className="container">
-                {/* Header / Breadcrumbs */}
-                <button
-                    onClick={() => navigate(-1)}
-                    className="back-btn"
-                >
-                    <ArrowLeft size={18} /> Volver
-                </button>
+        <div className="product-details-container">
+            {/* Breadcrumb Navigation */}
+            <nav className="breadcrumb">
+                <div className="container">
+                    <Link to="/">Inicio</Link>
+                    <ChevronRight size={14} />
+                    <Link to="/productos">Tienda</Link>
+                    <ChevronRight size={14} />
+                    <span className="current">{product.categoria?.nombre || 'General'}</span>
+                </div>
+            </nav>
 
-                <div className="product-main-grid">
-                    {/* Image Gallery */}
-                    <div className="gallery-container">
-                        <div className="thumbnails-wrapper">
+            <div className="container">
+                <main className="product-layout">
+                    {/* Left: Gallery Section */}
+                    <div className="product-gallery">
+                        <div className="thumb-carousel">
                             {allImages.map((img, idx) => (
-                                <button
+                                <div
                                     key={idx}
+                                    className={`thumb-item ${activeImage === img ? 'active' : ''}`}
                                     onMouseEnter={() => setActiveImage(img)}
-                                    onClick={() => setActiveImage(img)}
-                                    className={`thumb-btn ${activeImage === img ? 'active' : ''}`}
                                 >
-                                    <img src={img} alt="" />
-                                </button>
+                                    <img src={img} alt={`${product.nombre} view ${idx}`} />
+                                </div>
                             ))}
                         </div>
-                        <div className="main-image-wrapper glass-card">
+                        <div className="main-display">
                             <AnimatePresence mode="wait">
-                                <motion.img
+                                <motion.div
                                     key={activeImage}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    src={activeImage}
-                                    alt={product.nombre}
-                                    className="main-img"
-                                />
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="main-image-container"
+                                >
+                                    <img src={activeImage} alt={product.nombre} />
+                                </motion.div>
                             </AnimatePresence>
                         </div>
                     </div>
 
-                    {/* Product Info */}
-                    <div className="info-container">
-                        <div className="info-header">
-                            <span className="category-tag">
-                                {product.categoria?.nombre || 'General'}
-                            </span>
-                            <div className="header-actions">
-                                <button className="glass-button action-btn"><Heart size={20} /></button>
-                                <button className="glass-button action-btn"><Share2 size={20} /></button>
-                            </div>
-                        </div>
-
-                        <h1 className="product-title">{product.nombre}</h1>
-
-                        <div className="rating-row">
-                            <div className="stars">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} size={20} fill={i < Math.floor(product.puntuacion) ? "currentColor" : "none"} />
-                                ))}
-                            </div>
-                            <span className="rating-text">({product.puntuacion} de 5 estrellas)</span>
-                        </div>
-
-                        <div className="price-row">
-                            <h2 className="main-price">S/. {product.precio.toFixed(2)}</h2>
-                            {product.precioAnterior && (
-                                <span className="old-price">
-                                    S/. {product.precioAnterior.toFixed(2)}
-                                </span>
-                            )}
-                            {product.esOferta && (
-                                <div className="discount-badge">
-                                    -{Math.round((1 - product.precio / (product.precioAnterior || 1)) * 100)}%
+                    {/* Right: Info Section */}
+                    <div className="product-content">
+                        <div className="content-sticky">
+                            <div className="meta-info">
+                                <span className="category-label">{product.categoria?.nombre || 'General'}</span>
+                                <div className="utility-buttons">
+                                    <button className="icon-btn"><Heart size={20} /></button>
+                                    <button className="icon-btn"><Share2 size={20} /></button>
                                 </div>
-                            )}
-                        </div>
-
-                        <div className="description-box">
-                            <p>
-                                {product.descripcion || "Este producto de alta calidad de la marca " + product.marca + " es ideal para tus proyectos industriales y del hogar."}
-                            </p>
-                        </div>
-
-                        <div className="purchase-row">
-                            <div className="qty-selector">
-                                <button onClick={() => setCantidad(Math.max(1, cantidad - 1))} className="qty-btn"><Minus size={20} /></button>
-                                <span className="qty-val">{cantidad}</span>
-                                <button onClick={() => setCantidad(cantidad + 1)} className="qty-btn"><Plus size={20} /></button>
                             </div>
 
+                            <h1 className="title-text">{product.nombre}</h1>
+
+                            <div className="rating-summary">
+                                <div className="stars-group">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star
+                                            key={s}
+                                            size={18}
+                                            fill={s <= product.puntuacion ? "var(--primary)" : "none"}
+                                            stroke={s <= product.puntuacion ? "var(--primary)" : "#ddd"}
+                                        />
+                                    ))}
+                                </div>
+                                <span className="review-count">{product.puntuacion} / 5.0</span>
+                            </div>
+
+                            <div className="price-display">
+                                <div className="current-price">
+                                    <span className="symbol">S/.</span>
+                                    <span className="value">{product.precio.toFixed(2)}</span>
+                                </div>
+                                {product.precioAnterior && (
+                                    <div className="discount-block">
+                                        <span className="was-price">S/. {product.precioAnterior.toFixed(2)}</span>
+                                        <span className="save-badge">
+                                            Ahorra S/. {(product.precioAnterior - product.precio).toFixed(2)}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="short-desc">
+                                <p>{product.descripcion || `Herramienta profesional ${product.marca} diseñada para ofrecer el máximo rendimiento en tus proyectos mas exigentes.`}</p>
+                            </div>
+
+                            <div className="buying-actions">
+                                <div className="quantity-control">
+                                    <span className="label">Cantidad</span>
+                                    <div className="control-box">
+                                        <button onClick={() => setCantidad(Math.max(1, cantidad - 1))}><Minus size={18} /></button>
+                                        <span className="count">{cantidad}</span>
+                                        <button onClick={() => setCantidad(cantidad + 1)}><Plus size={18} /></button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    className={`add-button ${isAdded ? 'success' : ''}`}
+                                    onClick={handleAddToCart}
+                                    disabled={isAdded}
+                                >
+                                    {isAdded ? (
+                                        <><Check size={22} /> ¡Añadido!</>
+                                    ) : (
+                                        <><ShoppingCart size={22} /> Añadir al Carrito</>
+                                    )}
+                                </button>
+                            </div>
+
+                            <div className="trust-ribbon">
+                                <div className="trust-card">
+                                    <Truck size={24} />
+                                    <div className="card-text">
+                                        <strong>Envío Gratis</strong>
+                                        <span>Desde S/. 200</span>
+                                    </div>
+                                </div>
+                                <div className="trust-card">
+                                    <Undo size={24} />
+                                    <div className="card-text">
+                                        <strong>Cambios</strong>
+                                        <span>30 días</span>
+                                    </div>
+                                </div>
+                                <div className="trust-card">
+                                    <ShieldCheck size={24} />
+                                    <div className="card-text">
+                                        <strong>Garantía</strong>
+                                        <span>100% Original</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                {/* Tabs / Detailed Specs */}
+                <section className="details-tabs">
+                    <div className="tabs-nav">
+                        {['Detalles', 'Características'].map(t => (
                             <button
-                                onClick={() => addToCart(product, cantidad)}
-                                className="btn-primary add-to-cart-btn"
+                                key={t}
+                                className={selectedTab === (t === 'Detalles' ? 'detail' : 'specs') ? 'active' : ''}
+                                onClick={() => setSelectedTab(t === 'Detalles' ? 'detail' : 'specs')}
                             >
-                                <ShoppingCart size={24} /> <span>Añadir al Carrito</span>
+                                {t}
                             </button>
-                        </div>
-
-                        <div className="trust-badges-grid-mini">
-                            <div className="trust-item">
-                                <Truck size={30} className="badge-icon" />
-                                <span className="badge-text">Envío Gratis</span>
-                                <p className="badge-subtext">En compras mayores a S/. 200</p>
-                            </div>
-                            <div className="trust-item">
-                                <Undo size={30} className="badge-icon" />
-                                <span className="badge-text">Devalución Fácil</span>
-                                <p className="badge-subtext">Hasta 30 días</p>
-                            </div>
-                            <div className="trust-item">
-                                <ShieldCheck size={30} className="badge-icon" />
-                                <span className="badge-text">Garantía</span>
-                                <p className="badge-subtext">100% Calidad Asegurada</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
-                </div>
-
-                {/* Tabs Section */}
-                <div className="tabs-section">
-                    <div className="tabs-header">
-                        <button
-                            onClick={() => setSelectedTab('detail')}
-                            className={`tab-btn ${selectedTab === 'detail' ? 'active' : ''}`}
-                        >
-                            Especificaciones
-                        </button>
-                        <button
-                            onClick={() => setSelectedTab('shipping')}
-                            className={`tab-btn ${selectedTab === 'shipping' ? 'active' : ''}`}
-                        >
-                            Política de Envío
-                        </button>
-                    </div>
-
-                    <div className="tabs-content">
+                    <div className="tabs-body">
                         {selectedTab === 'detail' ? (
-                            <div className="specs-grid">
-                                <div className="glass-card spec-card">
-                                    <h4>Ficha Técnica</h4>
-                                    <table className="spec-table">
-                                        <tbody>
-                                            <tr><td>Marca</td><td>{product.marca}</td></tr>
-                                            <tr><td>Categoría</td><td>{product.categoria?.nombre}</td></tr>
-                                            <tr><td>Disponibilidad</td><td className="in-stock">{product.stock > 0 ? 'En Stock (' + product.stock + ')' : 'Próximamente'}</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div className="info-text">
-                                    <h4>Información del Producto</h4>
-                                    <p>{product.descripcion || "Adquiere este producto original Carlos C&C. Diseñado bajo los más estrictos estándares de calidad..."}</p>
+                            <div className="description-rich">
+                                <h3>Descripción del Producto</h3>
+                                <p>{product.descripcion || "Este producto ha sido diseñado bajo los más altos estándares de calidad para profesionales exigentes."}</p>
+                                <div className="brand-highlight">
+                                    <strong>Marca:</strong> {product.marca}
                                 </div>
                             </div>
                         ) : (
-                            <div className="shipping-info">
-                                <h4>Información de despacho</h4>
-                                <p>Realizamos envíos a todo el Perú. En Lima metropolitana el tiempo de entrega es de 24 a 48 horas hábiles...</p>
+                            <div className="specs-table-wrapper">
+                                <table className="specs-table">
+                                    <tbody>
+                                        <tr>
+                                            <th>Marca</th>
+                                            <td>{product.marca}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Categoría</th>
+                                            <td>{product.categoria?.nombre}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Estado de Stock</th>
+                                            <td className="stock-status">
+                                                {product.stock > 0 ? (
+                                                    <span className="in-stock"><Check size={14} /> Disponible ({product.stock} unids)</span>
+                                                ) : 'Agotado'}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Modelo</th>
+                                            <td>Industrial Series 2024</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
-                </div>
+                </section>
             </div>
 
             <style>{`
-                .product-details-page { padding: 3rem 5%; background-color: var(--bg-main); min-height: 100vh; }
-                .back-btn { margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem; background: transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+                .product-details-container { padding-bottom: 5rem; background: #fff; }
                 
-                .product-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+                /* Breadcrumb */
+                .breadcrumb { background: #f8f9fa; padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid #eee; }
+                .breadcrumb .container { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+                .breadcrumb a { color: #666; text-decoration: none; transition: 0.2s; }
+                .breadcrumb a:hover { color: var(--primary); }
+                .breadcrumb .current { color: #aaa; font-weight: 500; }
+
+                /* Main Layout */
+                .product-layout { display: grid; grid-template-columns: 1fr 450px; gap: 4rem; margin-bottom: 5rem; }
                 
-                .gallery-container { display: flex; gap: 1.5rem; }
-                .thumbnails-wrapper { display: flex; flexDirection: column; gap: 1rem; }
-                .thumb-btn { width: 80px; height: 80px; borderRadius: 12px; overflow: hidden; border: 1px solid var(--border-color); padding: 5px; backgroundColor: #fff; cursor: pointer; }
-                .thumb-btn.active { border-color: var(--primary); border-width: 2px; }
-                .thumb-btn img { width: 100%; height: 100%; object-fit: contain; }
-                .main-image-wrapper { flex: 1; padding: 2rem; display: flex; alignItems: center; justifyContent: center; height: 600px; backgroundColor: #fff; borderRadius: 30px; }
-                .main-img { width: 100%; height: 100%; object-fit: contain; }
+                /* Gallery */
+                .product-gallery { display: flex; gap: 1.5rem; }
+                .thumb-carousel { display: flex; flex-direction: column; gap: 1rem; width: 80px; }
+                .thumb-item { width: 80px; height: 80px; border-radius: 12px; border: 1px solid #eee; padding: 8px; cursor: pointer; transition: 0.3s; background: #fff; overflow: hidden; }
+                .thumb-item.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+                .thumb-item img { width: 100%; height: 100%; object-fit: contain; }
+                .main-display { flex: 1; background: #fff; border-radius: 24px; border: 1px solid #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 550px; }
+                .main-image-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+                .main-image-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-                .info-header { display: flex; justifyContent: space-between; alignItems: center; marginBottom: 1rem; }
-                .category-tag { background: var(--bg-dark); padding: 6px 15px; borderRadius: 99px; fontSize: 0.75rem; fontWeight: 800; color: var(--primary); letterSpacing: '1px'; }
-                .header-actions { display: flex; gap: 1rem; }
-                .action-btn { padding: 10px; cursor: pointer; }
-                .product-title { fontSize: 3rem; fontWeight: 900; lineHeight: 1.1; marginBottom: 1rem; }
-                .rating-row { display: flex; alignItems: center; gap: 1.5rem; marginBottom: 2.5rem; }
-                .stars { display: flex; color: #FFB800; }
-                .rating-text { color: var(--text-muted); fontSize: 0.9rem; fontWeight: 600; }
-                .price-row { display: flex; alignItems: baseline; gap: 1.5rem; marginBottom: 3rem; }
-                .main-price { fontSize: 3.5rem; color: var(--primary); fontWeight: 950; }
-                .old-price { fontSize: 1.5rem; text-decoration: line-through; color: var(--text-muted); fontWeight: 600; }
-                .discount-badge { backgroundColor: #FF3B30; color: #fff; padding: 5px 12px; borderRadius: 10px; fontSize: 0.9rem; fontWeight: 900; }
+                /* Content */
+                .content-sticky { position: sticky; top: 100px; }
+                .meta-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+                .category-label { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; font-weight: 800; color: #888; border-left: 3px solid var(--primary); padding-left: 10px; }
+                .utility-buttons { display: flex; gap: 10px; }
+                .icon-btn { background: #f8f9fa; border: none; padding: 10px; border-radius: 50%; cursor: pointer; color: #444; transition: 0.2s; }
+                .icon-btn:hover { background: #eee; color: var(--primary); }
 
-                .description-box { backgroundColor: var(--bg-dark); borderRadius: 24px; padding: 2.5rem; marginBottom: 3rem; }
-                .description-box p { color: var(--text-muted); fontSize: 1.1rem; lineHeight: 1.6; }
+                .title-text { font-size: 2.8rem; font-weight: 950; line-height: 1.1; margin-bottom: 1rem; color: #1a1a1a; }
+                .rating-summary { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+                .review-count { font-size: 1rem; color: #777; font-weight: 600; }
+                
+                .price-display { margin-bottom: 2.5rem; }
+                .current-price { display: flex; align-items: flex-start; color: var(--primary); font-weight: 950; }
+                .current-price .symbol { font-size: 1.5rem; margin-top: 10px; margin-right: 5px; }
+                .current-price .value { font-size: 4rem; line-height: 1; }
+                
+                .discount-block { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+                .was-price { font-size: 1.2rem; color: #999; text-decoration: line-through; }
+                .save-badge { background: #e6fffa; color: #008080; font-size: 0.8rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
 
-                .purchase-row { display: flex; gap: 2rem; marginBottom: 3rem; }
-                .qty-selector { display: flex; alignItems: center; gap: 1rem; backgroundColor: var(--bg-main); padding: 10px 20px; borderRadius: 16px; border: 1px solid var(--border-color); }
-                .qty-btn { background: transparent; cursor: pointer; color: var(--text-main); }
-                .qty-val { fontSize: 1.2rem; fontWeight: 900; minWidth: 40px; textAlign: center; }
-                .add-to-cart-btn { flex: 1; height: 64px; fontSize: 1.1rem; fontWeight: 900; borderRadius: 20px; display: flex; align-items: center; justify-content: center; gap: 1rem; }
+                .short-desc { margin-bottom: 3rem; color: #666; line-height: 1.6; font-size: 1.05rem; }
 
-                .trust-badges-grid-mini { display: grid; gridTemplateColumns: repeat(3, 1fr); gap: 1.5rem; borderTop: 1px solid var(--border-color); paddingTop: 3rem; }
-                .trust-item { display: flex; flexDirection: column; alignItems: center; gap: 0.8rem; textAlign: center; }
-                .badge-icon { color: var(--primary); }
-                .badge-text { fontSize: 0.85rem; fontWeight: 700; }
-                .badge-subtext { fontSize: 0.75rem; color: var(--text-muted); }
+                .buying-actions { display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 3rem; }
+                .quantity-control .label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #999; margin-bottom: 8px; }
+                .control-box { display: flex; align-items: center; justify-content: space-between; border: 2px solid #eee; border-radius: 12px; padding: 10px; }
+                .control-box button { background: none; border: none; cursor: pointer; color: #1a1a1a; display: flex; align-items: center; }
+                .control-box .count { font-weight: 900; font-size: 1.1rem; }
+                
+                .add-button { background: #000; color: #fff; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+                .add-button:hover { background: var(--primary); color: #000; transform: translateY(-2px); }
+                .add-button.success { background: #34C759; color: #fff; }
 
-                .tabs-section { marginTop: 5rem; }
-                .tabs-header { display: flex; borderBottom: 1px solid var(--border-color); gap: 3rem; }
-                .tab-btn { padding: 1rem 0.5rem; background: transparent; fontWeight: 800; color: var(--text-muted); borderBottom: 3px solid transparent; cursor: pointer; }
-                .tab-btn.active { color: var(--primary); borderBottom-color: var(--primary); }
-                .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 3rem 0; }
-                .spec-card { padding: 2rem; }
-                .spec-table { width: 100%; border-collapse: collapse; }
-                .spec-table td { padding: 12px 0; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
-                .spec-table td:last-child { font-weight: 700; text-align: right; }
-                .in-stock { color: #34C759 !important; }
+                .trust-ribbon { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding-top: 2rem; border-top: 1px solid #f0f0f0; }
+                .trust-card { display: flex; flex-direction: column; gap: 5px; color: #666; }
+                .trust-card svg { color: var(--primary); }
+                .trust-card strong { font-size: 0.8rem; font-weight: 800; color: #1a1a1a; }
+                .trust-card span { font-size: 0.7rem; }
 
-                @media (max-width: 992px) {
-                    .product-main-grid { grid-template-columns: 1fr; gap: 2rem; }
-                    .main-image-wrapper { height: 400px; }
-                    .product-title { font-size: 2.2rem; }
-                    .main-price { font-size: 2.5rem; }
-                    .specs-grid { grid-template-columns: 1fr; }
+                /* Tabs Section */
+                .details-tabs { border-top: 1px solid #eee; padding-top: 3rem; }
+                .tabs-nav { display: flex; gap: 4rem; border-bottom: 1px solid #eee; margin-bottom: 3rem; }
+                .tabs-nav button { background: none; border: none; padding: 1.5rem 0; font-weight: 800; font-size: 1.1rem; color: #999; cursor: pointer; border-bottom: 4px solid transparent; transition: 0.3s; }
+                .tabs-nav button.active { color: #1a1a1a; border-bottom-color: var(--primary); }
+                
+                .tabs-body { min-height: 200px; padding-bottom: 4rem; }
+                .description-rich h3 { font-size: 1.8rem; margin-bottom: 1.5rem; font-weight: 900; }
+                .description-rich p { color: #555; line-height: 1.8; font-size: 1.1rem; }
+                .brand-highlight { margin-top: 2rem; font-size: 1.1rem; }
+                
+                .specs-table { width: 100%; max-width: 600px; border-collapse: collapse; }
+                .specs-table th { text-align: left; padding: 1.5rem 0; border-bottom: 1px solid #eee; color: #888; font-weight: 600; }
+                .specs-table td { text-align: right; padding: 1.5rem 0; border-bottom: 1px solid #eee; font-weight: 800; color: #1a1a1a; }
+                .stock-status .in-stock { color: #34C759; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+
+                @media (max-width: 1024px) {
+                    .product-layout { grid-template-columns: 1fr; gap: 3rem; }
+                    .content-sticky { position: static; }
+                    .main-display { height: 450px; }
                 }
 
                 @media (max-width: 768px) {
-                    .gallery-container { flex-direction: column-reverse; }
-                    .thumbnails-wrapper { flex-direction: row; overflow-x: auto; padding-bottom: 5px; }
-                    .thumb-btn { flex-shrink: 0; }
-                    .purchase-row { flex-direction: column; }
-                    .qty-selector { justify-content: space-between; }
-                    .trust-badges-grid-mini { grid-template-columns: 1fr; gap: 2rem; }
+                    .product-gallery { flex-direction: column-reverse; }
+                    .thumb-carousel { flex-direction: row; width: 100%; overflow-x: auto; }
+                    .title-text { font-size: 2.2rem; }
+                    .current-price .value { font-size: 3rem; }
+                    .buying-actions { grid-template-columns: 1fr; }
+                    .tabs-nav { gap: 2rem; overflow-x: auto; }
+                    .tabs-nav button { font-size: 1rem; }
                 }
             `}</style>
         </div>
