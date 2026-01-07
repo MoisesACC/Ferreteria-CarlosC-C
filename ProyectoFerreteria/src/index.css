@@ -76,6 +76,12 @@ button {
   padding: 0 2rem;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
 /* Base Classes */
 .btn-primary {
   background-color: var(--primary);
@@ -149,6 +155,13 @@ button {
   }
 }
 
+@media (max-width: 768px) {
+  .marquee-content {
+    animation-duration: 15s;
+    font-size: 0.8rem;
+  }
+}
+
 input,
 select,
 textarea {
@@ -198,4 +211,29 @@ input:focus {
 
 .admin-table tr:hover {
   background-color: var(--bg-dark);
+}
+
+/* Generic Responsive Grids */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .responsive-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Horizontal Scroll for Tables on Mobile */
+@media (max-width: 768px) {
+  .admin-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-table {
+    min-width: 800px;
+  }
 }

@@ -179,9 +179,13 @@ export const Login: React.FC = () => {
           .animate-spin {
             animation: spin 1s linear infinite;
           }
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+          @media (max-width: 480px) {
+            .glass-card {
+                padding: 1.5rem !important;
+            }
+            h2 {
+                font-size: 1.5rem !important;
+            }
           }
         `}</style>
             </motion.div>

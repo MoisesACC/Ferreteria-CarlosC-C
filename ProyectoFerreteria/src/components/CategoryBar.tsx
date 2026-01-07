@@ -20,15 +20,7 @@ export const CategoryBar: React.FC = () => {
     };
 
     return (
-        <div style={{
-            backgroundColor: 'var(--bg-main)',
-            borderBottom: '1px solid var(--border-color)',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '2rem',
-            padding: '0.8rem 2rem',
-            flexWrap: 'wrap'
-        }}>
+        <div className="category-bar-container">
             <Link to="/productos" className="nav-item">Inicio</Link>
             {categorias.map(cat => (
                 <Link key={cat.id} to={`/productos?categoria=${cat.id}`} className="nav-item">
@@ -40,6 +32,19 @@ export const CategoryBar: React.FC = () => {
             <Link to="#" className="nav-item">Clientes satisfechos</Link>
 
             <style>{`
+                .category-bar-container {
+                    background-color: var(--bg-main);
+                    border-bottom: 1px solid var(--border-color);
+                    display: flex;
+                    justify-content: center;
+                    gap: 2rem;
+                    padding: 0.8rem 2rem;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+                .category-bar-container::-webkit-scrollbar {
+                    display: none;
+                }
                 .nav-item {
                     text-decoration: none;
                     color: var(--text-main);
@@ -49,9 +54,18 @@ export const CategoryBar: React.FC = () => {
                     align-items: center;
                     gap: 0.5rem;
                     transition: var(--transition);
+                    white-space: nowrap;
                 }
                 .nav-item:hover {
                     color: var(--primary);
+                }
+                
+                @media (max-width: 992px) {
+                    .category-bar-container {
+                        justify-content: flex-start;
+                        padding: 0.8rem 1rem;
+                        gap: 1.5rem;
+                    }
                 }
             `}</style>
         </div>

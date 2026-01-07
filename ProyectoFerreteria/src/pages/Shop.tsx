@@ -51,58 +51,34 @@ export const Shop: React.FC = () => {
     return (
         <div style={{ backgroundColor: 'var(--bg-main)', minHeight: '100vh', padding: '4rem 0' }}>
             <div className="container">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '4rem' }}>
-                    <div>
-                        <h1 style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>Catálogo Profesional</h1>
+                <div className="shop-header">
+                    <div className="shop-title">
+                        <h1 className="h1-title">Catálogo Profesional</h1>
                         <p style={{ color: 'var(--text-muted)' }}>Explora nuestra selección de herramientas de alta calidad.</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    <div className="shop-stats">
                         <SlidersHorizontal size={20} />
                         <span>Mostrando {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredProductos.length)} de {filteredProductos.length} resultados</span>
                     </div>
                 </div>
 
                 {/* Filters Bar */}
-                <div style={{
-                    display: 'flex',
-                    gap: '1.5rem',
-                    marginBottom: '4rem',
-                    padding: '1.5rem',
-                    backgroundColor: 'var(--bg-dark)',
-                    borderRadius: '16px',
-                    alignItems: 'center',
-                    flexWrap: 'wrap'
-                }}>
-                    <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
-                        <Search style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={20} />
+                <div className="filters-bar">
+                    <div className="search-wrapper">
+                        <Search className="search-icon" size={20} />
                         <input
                             type="text"
                             placeholder="Buscar por nombre, marca o tipo..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{
-                                width: '100%',
-                                padding: '12px 15px 12px 45px',
-                                border: '1px solid var(--border-color)',
-                                borderRadius: '99px',
-                                backgroundColor: 'var(--bg-main)',
-                                fontSize: '1rem'
-                            }}
                         />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div className="category-select-wrapper">
                         <Filter size={20} style={{ color: 'var(--primary)' }} />
                         <select
                             value={selectedCategoria}
                             onChange={(e) => setSelectedCategoria(e.target.value)}
-                            style={{
-                                padding: '12px 20px',
-                                borderRadius: '99px',
-                                border: '1px solid var(--border-color)',
-                                backgroundColor: 'var(--bg-main)',
-                                minWidth: '200px'
-                            }}
                         >
                             <option value="all">Todas las categorías</option>
                             {categorias.map(cat => (
@@ -111,6 +87,72 @@ export const Shop: React.FC = () => {
                         </select>
                     </div>
                 </div>
+
+                <style>{`
+                    .shop-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-end;
+                        margin-bottom: 4rem;
+                    }
+                    .h1-title { font-size: 3rem; margin-bottom: 0.5rem; }
+                    .shop-stats {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        color: var(--text-muted);
+                        font-size: 0.9rem;
+                    }
+                    .filters-bar {
+                        display: flex;
+                        gap: 1.5rem;
+                        margin-bottom: 4rem;
+                        padding: 1.5rem;
+                        background-color: var(--bg-dark);
+                        border-radius: 16px;
+                        align-items: center;
+                        flex-wrap: wrap;
+                    }
+                    .search-wrapper { position: relative; flex: 1; min-width: 300px; }
+                    .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+                    .search-wrapper input {
+                        width: 100%;
+                        padding: 12px 15px 12px 45px;
+                        border: 1px solid var(--border-color);
+                        border-radius: 99px;
+                        background-color: var(--bg-main);
+                        font-size: 1rem;
+                        color: var(--text-main);
+                    }
+                    .category-select-wrapper { display: flex; gap: 1rem; alignItems: center; flex: 0 0 auto; }
+                    .category-select-wrapper select {
+                        padding: 12px 20px;
+                        border-radius: 99px;
+                        border: 1px solid var(--border-color);
+                        background-color: var(--bg-main);
+                        min-width: 200px;
+                        color: var(--text-main);
+                    }
+
+                    @media (max-width: 768px) {
+                        .shop-header {
+                            flex-direction: column;
+                            align-items: flex-start;
+                            margin-bottom: 2rem;
+                            gap: 1.5rem;
+                        }
+                        .h1-title { font-size: 2.2rem; }
+                        .shop-stats { width: 100%; justify-content: flex-start; }
+                        
+                        .filters-bar {
+                            padding: 1rem;
+                            margin-bottom: 2rem;
+                        }
+                        .search-wrapper { min-width: 100%; }
+                        .category-select-wrapper { width: 100%; }
+                        .category-select-wrapper select { flex: 1; min-width: 0; }
+                    }
+                `}</style>
 
                 <div style={{
                     display: 'grid',

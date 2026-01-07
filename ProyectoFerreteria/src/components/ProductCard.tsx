@@ -22,6 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
     return (
         <motion.div
             whileHover={{ y: -5 }}
+            className="product-card"
             style={{
                 backgroundColor: 'var(--bg-card)',
                 borderRadius: '16px',
@@ -44,7 +45,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
                 )}
             </div>
 
-            <Link to={`/producto/${producto.id}`} style={{
+            <Link to={`/producto/${producto.id}`} className="img-container" style={{
                 width: '100%',
                 height: '240px',
                 backgroundColor: '#fff',
@@ -80,7 +81,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
                     {producto.precioAnterior && (
                         <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textDecoration: 'line-through' }}>S/. {producto.precioAnterior.toFixed(2)}</p>
                     )}
-                    <p style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-main)' }}>S/. {producto.precio.toFixed(2)}</p>
+                    <p className="price-text" style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-main)' }}>S/. {producto.precio.toFixed(2)}</p>
                 </div>
             </div>
 
@@ -88,6 +89,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
             <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <button
                     onClick={handleAdd}
+                    className="btn-text"
                     style={{
                         width: '100%',
                         padding: '12px',
@@ -108,6 +110,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
                 </button>
 
                 <button
+                    className="btn-text"
                     style={{
                         width: '100%',
                         padding: '12px',
@@ -140,6 +143,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
                     <span style={{ background: '#000', color: '#fff', padding: '10px 20px', borderRadius: '4px', fontWeight: 'bold' }}>AGOTADO</span>
                 </div>
             )}
+
+            <style>{`
+                @media (max-width: 480px) {
+                    .product-card {
+                        padding: 0.8rem !important;
+                    }
+                    .img-container {
+                        height: 180px !important;
+                    }
+                    .price-text {
+                        font-size: 1.2rem !important;
+                    }
+                    .btn-text {
+                        font-size: 0.8rem !important;
+                        padding: 10px !important;
+                    }
+                }
+            `}</style>
         </motion.div>
     );
 };
