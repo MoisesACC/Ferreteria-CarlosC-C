@@ -12,7 +12,7 @@ import { HeroSlider } from '../components/HeroSlider';
 import { BrandsSection } from '../components/BrandsSection';
 import { TestimonialsSection } from '../components/TestimonialsSection';
 import { CategoryBar } from '../components/CategoryBar';
-import { Logo } from '../components/Logo';
+
 
 export const Home: React.FC = () => {
     const [offers, setOffers] = useState<Producto[]>([]);

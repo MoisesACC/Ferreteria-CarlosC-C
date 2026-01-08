@@ -91,10 +91,29 @@ Para probar las funcionalidades de gestión, utiliza las siguientes credenciales
 ---
 
 ## 🗺️ Roadmap / Próximas Mejoras
-- [ ] Integración con pasarela de pagos real (Stripe/PayPal).
-- [ ] Sistema de búsqueda avanzada con filtros por rango de precio.
-- [ ] Generación de facturas PDF automatizadas al completar un pedido.
-- [ ] Panel de analíticas con gráficos de ventas mensuales.
+
+Para escalar este proyecto a un entorno de producción masivo, se han identificado las siguientes áreas claves de desarrollo:
+
+### 1. Arquitectura y Rendimiento
+- [ ] **Implementar TanStack Query (React Query):** Para una gestión profesional del estado asíncrono, caché inteligente y reintentos automáticos.
+- [ ] **Optimización de Assets:** Introducir soporte para imágenes **WebP** y técnica de **Lazy Loading** avanzada.
+- [ ] **Code Splitting:** Carga dinámica de rutas para reducir el bundle inicial.
+
+### 2. Experiencia de Usuario (UX)
+- [ ] **Filtros Avanzados:** Búsqueda por rango de precio, marca y disponibilidad en tiempo real.
+- [ ] **Wishlist (Lista de Deseos):** Permitir a los usuarios guardar herramientas favoritas.
+- [ ] **Sistema de Reseñas:** Implementar valoraciones mediante estrellas y comentarios de clientes.
+- [ ] **Búsqueda Inteligente:** Autocompletado y sugerencias visuales en el buscador.
+
+### 3. Integraciones de Negocio
+- [ ] **Pasarela de Pago Real:** Conectar el flujo de checkout con **Stripe API** o **Mercado Pago**.
+- [ ] **Gestión de Stock Crítico:** Alertas automáticas al administrador cuando un producto tenga bajo inventario.
+- [ ] **Generación de Facturas PDF:** Creación automática de comprobantes de pago descargables.
+
+### 4. Seguridad, SEO y Marketing
+- [ ] **Validación con Zod:** Implementar `React Hook Form` junto a `Zod` para validaciones de esquema estrictas.
+- [ ] **SEO Dinámico:** Uso de `React Helmet` para optimizar cada producto individual en Google.
+- [ ] **Dashboard Estadístico:** Integrar gráficas interactivas (`Recharts`) para visualizar tendencias de ventas.
 
 ---
 
