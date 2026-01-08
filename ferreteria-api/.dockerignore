@@ -1,0 +1,12 @@
+target/
+*.class
+*.jar
+*.exe
+.idea/
+.vscode/
+.git/
+.mvn/
+mvnw
+mvnw.cmd
+Dockerfile
+.dockerignore
