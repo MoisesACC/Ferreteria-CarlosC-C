@@ -6,7 +6,6 @@ import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 
 export const Shop: React.FC = () => {
     const [productos, setProductos] = useState<Producto[]>([]);
-    const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategoria, setSelectedCategoria] = useState<string>('all');
@@ -21,12 +20,11 @@ export const Shop: React.FC = () => {
             api.get('/categorias')
         ]).then(([prodRes, catRes]) => {
             setProductos(prodRes.data);
-            setFilteredProductos(prodRes.data);
             setCategorias(catRes.data);
         }).catch(err => console.error("Error fetching data", err));
     }, []);
 
-    useEffect(() => {
+    const filteredProductos = React.useMemo(() => {
         let result = productos;
         if (searchTerm) {
             result = result.filter(p =>
@@ -38,9 +36,12 @@ export const Shop: React.FC = () => {
         if (selectedCategoria !== 'all') {
             result = result.filter(p => p.categoria?.id === selectedCategoria);
         }
-        setFilteredProductos(result);
-        setCurrentPage(1); // Reset to page 1 on filter
+        return result;
     }, [searchTerm, selectedCategoria, productos]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Reset to page 1 on filter
+    }, [searchTerm, selectedCategoria]);
 
     // Calculate pagination
     const totalPages = Math.ceil(filteredProductos.length / itemsPerPage);

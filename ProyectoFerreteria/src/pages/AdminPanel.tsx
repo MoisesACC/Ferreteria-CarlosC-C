@@ -93,12 +93,17 @@ export const AdminPanel: React.FC = () => {
         }
     };
 
-    // Statistics Calculation
-    const totalSales = orders.reduce((acc, curr) => acc + curr.total, 0);
-    const avgOrderValue = orders.length > 0 ? totalSales / orders.length : 0;
-    const lowStockProducts = products.filter(p => p.stock < 10);
-    const pendingOrders = orders.filter(o => o.estado === 'PENDIENTE' || o.estado === 'PAGADO').length;
-    const recentOrders = [...orders].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()).slice(0, 5);
+    // Statistics Calculation (Optimized with useMemo)
+    const stats = React.useMemo(() => {
+        const totalSales = orders.reduce((acc, curr) => acc + curr.total, 0);
+        const avgOrderValue = orders.length > 0 ? totalSales / orders.length : 0;
+        const lowStockProducts = products.filter(p => p.stock < 10);
+        const pendingOrders = orders.filter(o => o.estado === 'PENDIENTE' || o.estado === 'PAGADO').length;
+        const recentOrders = [...orders]
+            .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+            .slice(0, 5);
+        return { totalSales, avgOrderValue, lowStockProducts, pendingOrders, recentOrders };
+    }, [orders, products]);
 
     // Product CRUD
     const handleSaveProduct = async (e: React.FormEvent) => {
@@ -178,10 +183,12 @@ export const AdminPanel: React.FC = () => {
     const [productPage, setProductPage] = useState(1);
     const productsPerPage = 7;
 
-    const filteredProducts = products.filter(p =>
-        p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.marca.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = React.useMemo(() => {
+        return products.filter(p =>
+            p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.marca.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [products, searchTerm]);
 
     useEffect(() => {
         setProductPage(1);
@@ -368,24 +375,26 @@ export const AdminPanel: React.FC = () => {
                 {activeTab === 'dashboard' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                            {[
-                                { label: 'Ventas Totales', value: `S/. ${totalSales.toFixed(2)}`, icon: <TrendingUp />, color: '#34C759', description: 'Ingresos brutos acumulados' },
-                                { label: 'Ticket Promedio', value: `S/. ${avgOrderValue.toFixed(2)}`, icon: <ShoppingBag />, color: '#007AFF', description: 'Valor medio por pedido' },
-                                { label: 'Pedidos Pendientes', value: pendingOrders, icon: <ShoppingBag />, color: '#FF9500', description: 'Por procesar o enviar' },
-                                { label: 'Bajo Stock', value: lowStockProducts.length, icon: <Package />, color: '#FF3B30', description: 'Productos con < 10 unid.' },
-                                { label: 'Clientes', value: users.length, icon: <Users />, color: '#6C47FF', description: 'Usuarios registrados' }
-                            ].map((stat, i) => (
-                                <div key={i} className="glass-card no-hover-move" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid var(--border-color)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                        <div style={{ padding: '0.8rem', borderRadius: '12px', backgroundColor: `${stat.color}15`, color: stat.color }}>{stat.icon}</div>
+                            {
+                                [
+                                    { label: 'Ventas Totales', value: `S/. ${stats.totalSales.toFixed(2)}`, icon: <TrendingUp />, color: '#34C759', description: 'Ingresos brutos acumulados' },
+                                    { label: 'Ticket Promedio', value: `S/. ${stats.avgOrderValue.toFixed(2)}`, icon: <ShoppingBag />, color: '#007AFF', description: 'Valor medio por pedido' },
+                                    { label: 'Pedidos Pendientes', value: stats.pendingOrders, icon: <ShoppingBag />, color: '#FF9500', description: 'Por procesar o enviar' },
+                                    { label: 'Bajo Stock', value: stats.lowStockProducts.length, icon: <Package />, color: '#FF3B30', description: 'Productos con < 10 unid.' },
+                                    { label: 'Clientes', value: users.length, icon: <Users />, color: '#6C47FF', description: 'Usuarios registrados' }
+                                ].map((stat, i) => (
+                                    <div key={i} className="glass-card no-hover-move" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid var(--border-color)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <div style={{ padding: '0.8rem', borderRadius: '12px', backgroundColor: `${stat.color}15`, color: stat.color }}>{stat.icon}</div>
+                                        </div>
+                                        <div>
+                                            <h3 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.2rem' }}>{stat.value}</h3>
+                                            <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: '700' }}>{stat.label}</p>
+                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{stat.description}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.2rem' }}>{stat.value}</h3>
-                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: '700' }}>{stat.label}</p>
-                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{stat.description}</p>
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            }
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
@@ -406,7 +415,7 @@ export const AdminPanel: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {recentOrders.map(o => (
+                                            {stats.recentOrders.map(o => (
                                                 <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                                     <td style={{ padding: '12px 5px', fontSize: '0.85rem', fontWeight: '600' }}>{o.usuario?.nombre}</td>
                                                     <td style={{ padding: '12px 5px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(o.fecha).toLocaleDateString()}</td>
@@ -432,10 +441,10 @@ export const AdminPanel: React.FC = () => {
                             <div className="glass-card no-hover-move" style={{ padding: '1.5rem', border: '1px solid var(--border-color)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
                                     <h2 style={{ fontSize: '1.2rem', fontWeight: '800' }}>Alertas de Stock</h2>
-                                    <span style={{ fontSize: '0.7rem', padding: '2px 6px', backgroundColor: '#FF3B30', color: '#fff', borderRadius: '4px', fontWeight: '800' }}>{lowStockProducts.length}</span>
+                                    <span style={{ fontSize: '0.7rem', padding: '2px 6px', backgroundColor: '#FF3B30', color: '#fff', borderRadius: '4px', fontWeight: '800' }}>{stats.lowStockProducts.length}</span>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    {lowStockProducts.slice(0, 6).map(p => (
+                                    {stats.lowStockProducts.slice(0, 6).map(p => (
                                         <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.5rem', borderRadius: '8px', backgroundColor: 'rgba(255,59,48,0.05)' }}>
                                             <img src={p.imagen} alt="" style={{ width: '32px', height: '32px', objectFit: 'contain', backgroundColor: '#fff', borderRadius: '4px' }} />
                                             <div style={{ flex: 1, minWidth: 0 }}>
@@ -444,7 +453,7 @@ export const AdminPanel: React.FC = () => {
                                             </div>
                                         </div>
                                     ))}
-                                    {lowStockProducts.length === 0 && (
+                                    {stats.lowStockProducts.length === 0 && (
                                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>Todo bajo control. Stock saludable.</p>
                                     )}
                                 </div>
