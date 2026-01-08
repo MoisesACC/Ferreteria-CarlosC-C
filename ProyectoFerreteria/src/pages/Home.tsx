@@ -106,81 +106,31 @@ export const Home: React.FC = () => {
             {/* Brands Carousel */}
             <BrandsSection />
 
-            {/* Promotional Grid - Professional Layout */}
+            {/* Promotional Grid - Mosaic Packery style */}
             <section style={{ padding: '6rem 0', backgroundColor: '#fff' }}>
-                <div className="container promo-grid">
+                <div className="container promo-grid-v2">
                     {/* Item 1: Rotomartillo (Small) */}
-                    <div className="promo-card card-small-top dark-theme">
-                        <div className="card-info">
-                            <div className="price-tag">
-                                <span className="currency">S/</span>
-                                <span className="amount">269</span>
-                            </div>
-                            <div className="product-name">
-                                ROTOMARTILLO <br /> <span>1500W</span>
-                            </div>
-                        </div>
-                        <div className="card-image ">
-                            <img src="https://promart.vteximg.com.br/arquivos/ids/1197572-700-700/13391.jpg?v=637600648209900000" alt="Rotomartillo" />
-                        </div>
-                        <div className="card-footer-yellow">1500W</div>
+                    <div className="mosaic-card card-r1-c1">
+                        <img src="https://ferreteriaspacco.com/cdn/shop/files/PACKERY-3.png?v=1760428142&width=720" alt="Rotomartillo" />
+                        <div className="mosaic-overlay"></div>
                     </div>
 
                     {/* Item 2: Nivel Laser (Small) */}
-                    <div className="promo-card card-small-top dark-theme">
-                        <div className="card-info">
-                            <div className="price-tag">
-                                <span className="currency">S/</span>
-                                <span className="amount">275</span>
-                            </div>
-                            <div className="product-name">
-                                NIVEL LASER <br /> <span>16 LÍNEAS</span>
-                            </div>
-                        </div>
-                        <div className="card-image">
-                            <img src="https://oechsle.vteximg.com.br/arquivos/ids/20600880-1000-1000/imageUrl_1.jpg?v=638767842562000000" alt="Nivel Laser" />
-                        </div>
-                        <div className="card-footer-yellow">16 LÍNEAS</div>
+                    <div className="mosaic-card card-r1-c2">
+                        <img src="https://ferreteriaspacco.com/cdn/shop/files/PACKERY-4.png?v=1760428142&width=720" alt="Nivel Laser" />
+                        <div className="mosaic-overlay"></div>
                     </div>
 
-                    {/* Item 3: Taladro (Large - Spans 2 rows) */}
-                    <div className="promo-card card-large-vertical">
-                        <div className="card-info-main">
-                            <div className="price-tag-large">
-                                <span className="currency">S/</span>
-                                <span className="amount">299</span>
-                            </div>
-                            <div className="product-name-large">
-                                TALADRO <br /> <span>+ SET DE 165 PZ</span>
-                            </div>
-                        </div>
-                        <div className="card-image-main">
-                            <img src="https://promart.vteximg.com.br/arquivos/ids/9851186/Taladro-20v-y-Set-de-Herramientas-165-pcs-Total-THKTHP11652.jpg?v=639012445195600000" alt="Taladro" />
-                        </div>
-                        <div className="card-badge">
-                            <Logo width={40} />
-                        </div>
-                        <div className="card-footer-yellow-banner">Hasta agotar stock</div>
+                    {/* Item 3: Hidrolavadora (Wide) */}
+                    <div className="mosaic-card card-wide">
+                        <img src="https://ferreteriaspacco.com/cdn/shop/files/PACKERY-2.png?v=1760428143&width=720" alt="Hidrolavadora" />
+                        <div className="mosaic-overlay"></div>
                     </div>
 
-                    {/* Item 4: Hidrolavadora (Wide) */}
-                    <div className="promo-card card-wide-bottom">
-                        <div className="card-info-main">
-                            <div className="price-tag-large">
-                                <span className="currency">S/</span>
-                                <span className="amount">199</span>
-                            </div>
-                            <div className="product-name-large">
-                                HIDRO <br /> <span>LAVADORA</span>
-                            </div>
-                        </div>
-                        <div className="card-image-main floating">
-                            <img src="https://dojiw2m9tvv09.cloudfront.net/48473/product/X_hila-1800-28158.jpg?81&time=1767285449" alt="Hidrolavadora" />
-                        </div>
-                        <div className="card-badge">
-                            <Logo width={40} />
-                        </div>
-                        <div className="card-footer-yellow-banner">Envíos a todo el Perú</div>
+                    {/* Item 4: Taladro + Set (Tall) */}
+                    <div className="mosaic-card card-tall">
+                        <img src="https://ferreteriaspacco.com/cdn/shop/files/PACKERY-1.png?v=1760428143&width=720" alt="Taladro Set" />
+                        <div className="mosaic-overlay"></div>
                     </div>
                 </div>
             </section>
@@ -280,190 +230,119 @@ export const Home: React.FC = () => {
             </section>
 
             <style>{`
-                .promo-grid {
+                /* Adjusted Mosaic Packery Grid */
+                .promo-grid-v2 {
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
-                    grid-template-rows: auto auto;
-                    gap: 1.5rem;
+                    gap: 1rem;
+                    max-width: 1200px; /* Slightly smaller and more centered */
+                    margin: 0 auto;
                 }
-                .promo-card {
+                .mosaic-card {
                     position: relative;
-                    background: #fff;
-                    border-radius: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-                    display: flex;
-                    border: 1px solid #eee;
-                }
-                .card-small-top {
-                    grid-column: span 1;
-                    height: 220px;
-                }
-                .card-large-vertical {
-                    grid-column: 3;
-                    grid-row: 1 / span 2;
-                    height: 100%;
-                    flex-direction: column;
-                }
-                .card-wide-bottom {
-                    grid-column: span 2;
-                    height: 280px;
-                }
-                
-                .dark-theme { background: #000; color: #fff; border: none; }
-                
-                /* Info Area */
-                .card-info {
-                    width: 45%;
-                    padding: 1.5rem;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    position: relative;
-                    z-index: 5;
-                }
-                .card-info-main {
-                    width: 50%;
-                    padding: 2.5rem;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    z-index: 5;
-                }
-                .card-large-vertical .card-info-main {
-                    width: 100%;
-                    padding-bottom: 0;
-                }
-
-                /* Price Tags */
-                .price-tag { display: flex; align-items: flex-start; margin-bottom: 0.5rem; transform: rotate(-3deg); }
-                .price-tag-large { display: flex; align-items: flex-start; margin-bottom: 1rem; transform: rotate(-2deg); }
-                .currency { font-size: 1.2rem; font-weight: 800; margin-top: 8px; margin-right: 2px; }
-                .price-tag-large .currency { font-size: 2.2rem; font-weight: 900; margin-top: 15px; }
-                
-                .amount { font-size: 3.5rem; font-weight: 900; line-height: 0.9; color: var(--primary); letter-spacing: -2px; }
-                .price-tag-large .amount { font-size: 7.5rem; font-weight: 900; color: #000; letter-spacing: -4px; }
-                .dark-theme .amount { color: var(--primary); }
-                .card-wide-bottom .amount { font-size: 8.5rem; }
-
-                /* Text */
-                .product-name { font-weight: 900; font-size: 0.95rem; line-height: 1.1; text-transform: uppercase; letter-spacing: 0.5px; }
-                .product-name span { color: var(--primary); display: block; font-size: 1.2rem; }
-                .product-name-large { font-weight: 900; font-size: 2.8rem; line-height: 0.9; text-transform: uppercase; margin-top: -10px; }
-                .product-name-large span { font-size: 1.8rem; display: block; color: #666; }
-
-                /* Image Area */
-                .card-image {
-                    flex: 1;
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding-right: 1rem;
-                }
-                .card-image img {
-                    max-height: 90%;
-                    max-width: 140%;
-                    object-fit: contain;
-                    transform: scale(1.3) translateX(10%);
-                    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.2));
-                    transition: 0.4s ease;
-                }
-                .promo-card:hover .card-image img { transform: scale(1.4) translateX(15%); }
-                
-                .smaller-img img { transform: scale(1) translateX(5%); }
-                
-                .card-image-main {
-                    flex: 1;
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .card-image-main img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: contain;
-                    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15));
-                    transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                }
-                .promo-card:hover .card-image-main img { transform: scale(1.15); }
-                
-                .card-large-vertical .card-image-main img {
-                    transform: scale(1.3) translateY(20px);
-                }
-                .card-wide-bottom .card-image-main img {
-                    transform: scale(1.5) translateX(30px);
-                }
-                .card-wide-bottom:hover .card-image-main img { transform: scale(1.6) translateX(40px); }
-
-                /* Footer Elements */
-                .card-footer-yellow {
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    background: var(--primary);
-                    color: #000;
-                    padding: 6px 20px;
-                    font-weight: 900;
-                    font-size: 0.85rem;
-                    text-transform: uppercase;
-                    clip-path: polygon(0 0, 90% 0, 100% 100%, 0% 100%);
-                }
-                .card-footer-yellow-banner {
-                    background: var(--primary);
-                    color: #000;
-                    text-align: center;
-                    padding: 12px;
-                    font-weight: 900;
-                    text-transform: uppercase;
-                    font-size: 1.1rem;
-                    width: 100%;
-                    letter-spacing: 1px;
-                }
-                .card-badge {
-                    position: absolute;
-                    top: 25px;
-                    right: 25px;
-                    background: #000;
-                    padding: 10px;
                     border-radius: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+                    transition: all 0.4s ease;
+                    background: #fff;
+                }
+                .mosaic-card img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: fill; /* Standard for these pre-designed banners to fit perfectly */
+                    display: block;
+                    transition: transform 0.5s ease;
+                }
+                .mosaic-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+                }
+                .mosaic-card:hover img {
+                    transform: scale(1.02);
+                }
+                .mosaic-overlay {
+                    position: absolute;
+                    top: 0; bottom: 0; left: 0; right: 0;
+                    background: rgba(0,0,0,0.02);
+                    pointer-events: none;
+                }
+
+                .card-r1-c1, .card-r1-c2 { 
+                    grid-column: span 1;
+                    height: 240px; /* Increased height for the top row */
+                }
+                .card-tall { 
+                    grid-column: 3; 
+                    grid-row: 1 / span 2; 
+                    width:380px;
+                    height: 640px; /* Fixed height for the tall banner */
+                }
+                .card-wide { 
+                    grid-column: 1 / span 2; 
+                    height: 384px; /* Balanced height to match the tall card with 1rem gap */
                 }
 
                 @media (max-width: 1200px) {
-                    .price-tag-large .amount { font-size: 4rem; }
-                    .card-wide-bottom .amount { font-size: 5rem; }
+                    .promo-grid-v2 { padding: 0 1rem; }
+                    .card-tall { width: auto; } /* Remove fixed width to fit container */
                 }
 
                 @media (max-width: 992px) {
-                    .promo-grid { 
-                        grid-template-columns: 1fr;
+                    .promo-grid-v2 { 
+                        grid-template-columns: 1fr 1fr;
                         grid-template-rows: auto;
                     }
-                    .card-small-top, .card-large-vertical, .card-wide-bottom { grid-column: span 1; grid-row: auto; height: auto; padding: 2rem 0; }
-                    .card-large-vertical { flex-direction: row; }
-                    .card-info, .card-info-main { width: 60%; }
+                    .card-r1-c1, .card-r1-c2 { 
+                        grid-column: span 1; 
+                        height: 200px; 
+                    }
+                    .card-tall { 
+                        grid-column: span 1; 
+                        grid-row: auto; 
+                        width: 100%;
+                        height: 410px; 
+                    }
+                    .card-wide { 
+                        grid-column: span 2; 
+                        height: 250px; 
+                    }
                 }
-                
+
                 @media (max-width: 768px) {
-                    .section-title { font-size: 2rem; }
-                    .slider-item { flex: 0 0 100%; }
-                    .countdown-wrapper { flex-direction: column; gap: 1rem; }
-                    .card-info, .card-info-main { width: 100%; text-align: center; align-items: center; }
-                    .card-image, .card-image-main { display: none; }
+                    .promo-grid-v2 { 
+                        grid-template-columns: 1fr;
+                        gap: 1rem;
+                    }
+                    .card-r1-c1, .card-r1-c2, .card-tall, .card-wide { 
+                        grid-column: span 1; 
+                        grid-row: auto; 
+                        width: 100%;
+                        height: auto;
+                        aspect-ratio: 16 / 9; /* Standard readable aspect ratio for mobile banners */
+                    }
+                    .card-tall { aspect-ratio: 4 / 5; } /* Slightly taller for the taladro on mobile */
                 }
 
                 .section-title { font-size: 2.8rem; font-weight: 900; margin-bottom: 1.5rem; letter-spacing: -1px; }
                 
-                .countdown-wrapper { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 4rem; align-items: center; flex-wrap: wrap; }
-                .countdown-items { display: flex; gap: 1.5rem; }
+                .countdown-wrapper { 
+                    display: flex; 
+                    flex-direction: row; 
+                    align-items: center; 
+                    justify-content: center;
+                    gap: 2.5rem; 
+                    margin-bottom: 4rem; 
+                    width: 100%;
+                }
+                .countdown-label { font-size: 1.4rem; font-weight: 500; color: #333; }
+                .countdown-items { 
+                    display: flex; 
+                    gap: 2rem; 
+                    align-items: baseline;
+                    flex-wrap: nowrap;
+                }
                 .countdown-item { display: flex; align-items: baseline; gap: 8px; }
-                .countdown-val { font-size: 2.2rem; font-weight: 900; color: var(--accent); }
+                .countdown-val { font-size: 2.8rem; font-weight: 900; color: var(--accent); line-height: 1; }
                 .countdown-unit { font-size: 0.9rem; font-weight: 800; color: #888; text-transform: uppercase; }
 
                 .slider-container { 
@@ -549,10 +428,31 @@ export const Home: React.FC = () => {
                 }
                 
                 @media (max-width: 768px) {
-                    .section-title { font-size: 2rem; }
+                    .section-title { font-size: 2rem; text-align: center; }
                     .slider-item { flex: 0 0 100%; }
-                    .countdown-wrapper { flex-direction: column; gap: 1rem; }
                     .slider-arrow { display: none; }
+                    
+                    /* Countdown Mobile Fixes */
+                    .countdown-wrapper { 
+                        flex-direction: column; 
+                        gap: 1rem; 
+                        width: 100% !important;
+                    }
+                    .countdown-items { 
+                        gap: 0.8rem !important; 
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    .countdown-val { font-size: 1.8rem !important; }
+                    .countdown-unit { font-size: 0.65rem !important; }
+                    .countdown-label { font-size: 1.1rem !important; }
+                    .countdown-item { gap: 4px !important; }
+                }
+
+                @media (max-width: 480px) {
+                    .countdown-items { gap: 0.5rem !important; }
+                    .countdown-val { font-size: 1.4rem !important; }
+                    .countdown-unit { font-size: 0.5rem !important; }
                 }
             `}</style>
 
