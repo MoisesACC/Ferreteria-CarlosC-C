@@ -40,7 +40,7 @@ public class SecurityConfig {
         // Permitimos tanto el localhost como tu URL de Railway
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "https://ferreteria-carlosc-c-production-f38c.up.railway.app"));
+                "https://resourceful-compassion-production-rz7id.up.railway.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // Permitir todos los headers
         configuration.setAllowCredentials(true);
