@@ -37,10 +37,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        // Permitimos tanto el localhost como tu URL de Railway
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "https://ferreteria-carlosc-c-production-f38c.up.railway.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Auth-Token"));
-        configuration.setExposedHeaders(List.of("X-Auth-Token"));
+        configuration.setAllowedHeaders(Arrays.asList("*")); // Permitir todos los headers
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
