@@ -4,7 +4,6 @@ import {
     ChevronUp,
     Mail,
     MessageCircle,
-    Info,
     ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
