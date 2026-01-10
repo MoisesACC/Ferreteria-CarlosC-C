@@ -10,7 +10,8 @@ import {
     X,
     Zap,
     Hammer,
-    ChevronRight
+    ChevronRight,
+    HelpCircle
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
@@ -35,7 +36,7 @@ export const Navbar: React.FC = () => {
                 width: '100%',
                 backgroundColor: '#000',
                 color: '#fff',
-                padding: '0.8rem 0',
+                padding: '0.6rem 0',
                 borderBottom: '1px solid #333'
             }}>
                 <div className="container nav-content">
@@ -108,11 +109,16 @@ export const Navbar: React.FC = () => {
                 </div>
 
                 <style>{`
+                    .navbar {
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                        transition: all 0.3s ease;
+                    }
                     .nav-content {
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
                         gap: 1.5rem;
+                        max-width: 1400px !important;
                     }
                     .mobile-menu-btn {
                         display: none;
@@ -121,11 +127,14 @@ export const Navbar: React.FC = () => {
                         border: none;
                         cursor: pointer;
                         padding: 5px;
+                        transition: transform 0.2s ease;
                     }
+                    .mobile-menu-btn:active { transform: scale(0.9); }
+                    
                     .mobile-actions {
                         display: none;
                         align-items: center;
-                        gap: 1rem;
+                        gap: 1.2rem;
                     }
                     .mobile-action-btn {
                         background: transparent;
@@ -138,21 +147,22 @@ export const Navbar: React.FC = () => {
                         position: absolute;
                         top: -5px;
                         right: -5px;
-                        background: #FDB913;
+                        background: var(--primary);
                         color: #000;
                         border-radius: 50%;
-                        width: 16px;
-                        height: 16px;
+                        width: 18px;
+                        height: 18px;
                         font-size: 0.65rem;
-                        font-weight: 800;
+                        font-weight: 900;
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                        border: 2px solid #000;
                     }
                     .desktop-actions-group {
                         flex: 1;
-                        max-width: 500px;
-                        margin: 0 1rem;
+                        max-width: 600px;
+                        margin: 0 2rem;
                     }
                     .nav-search {
                         position: relative;
@@ -160,33 +170,48 @@ export const Navbar: React.FC = () => {
                     }
                     .nav-search input {
                         width: 100%;
-                        padding: 10px 20px 10px 45px;
+                        padding: 12px 20px 12px 50px;
                         border-radius: 99px;
-                        border: none;
-                        background-color: #f5f5f5;
+                        border: 1px solid #ddd;
+                        background-color: #fff;
                         color: #000;
-                        font-size: 0.9rem;
+                        font-size: 0.95rem;
+                        transition: all 0.3s ease;
+                    }
+                    .nav-search input:focus {
+                        background-color: #fff;
+                        color: #000;
+                        outline: none;
+                        box-shadow: 0 0 0 4px rgba(253, 185, 19, 0.2);
+                        border-color: var(--primary);
                     }
                     .search-icon {
                         position: absolute;
-                        left: 15px;
+                        left: 18px;
                         top: 50%;
                         transform: translateY(-50%);
-                        color: #888;
+                        color: #666;
+                        transition: color 0.3s ease;
+                    }
+                    .nav-search input:focus + .search-icon {
+                        color: var(--primary);
                     }
                     .nav-actions {
                         display: flex;
                         align-items: center;
-                        gap: 1.5rem;
-                    }
-                    .action-item {
-                        display: flex;
-                        align-items: center;
+                        gap: 2rem;
                     }
                     .desktop-user-cart {
                         display: flex;
                         align-items: center;
-                        gap: 1.5rem;
+                        gap: 2rem;
+                    }
+                    .cart-icon-wrapper {
+                        position: relative;
+                        transition: transform 0.2s ease;
+                    }
+                    .cart-link:hover .cart-icon-wrapper {
+                        transform: translateY(-2px);
                     }
                     .cart-badge {
                         position: absolute;
@@ -201,27 +226,38 @@ export const Navbar: React.FC = () => {
                         align-items: center;
                         justify-content: center;
                         font-size: 0.7rem;
-                        font-weight: 800;
+                        font-weight: 900;
+                        border: 2px solid #000;
                     }
                     .login-link, .cart-link {
                         color: #fff;
                         text-decoration: none;
                         display: flex;
                         align-items: center;
-                        gap: 0.6rem;
+                        gap: 0.8rem;
+                        transition: opacity 0.2s ease;
+                    }
+                    .login-link:hover, .cart-link:hover {
+                        opacity: 0.8;
                     }
                     .admin-badge {
                         background: var(--primary);
                         color: #000;
-                        padding: 4px 10px;
+                        padding: 4px 12px;
                         border-radius: 6px;
-                        font-size: 0.75rem;
-                        font-weight: 800;
+                        font-size: 0.7rem;
+                        font-weight: 900;
+                        letter-spacing: 0.5px;
                     }
                     .cart-text { display: flex; flex-direction: column; }
-                    .cart-label { font-size: 0.65rem; opacity: 0.6; text-transform: uppercase; font-weight: bold; }
-                    .cart-total { font-size: 0.85rem; font-weight: 800; color: var(--primary); }
+                    .cart-label { font-size: 0.65rem; opacity: 0.6; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+                    .cart-total { font-size: 0.95rem; font-weight: 900; color: var(--primary); }
                     .text-nowrap { white-space: nowrap; }
+
+                    @media (max-width: 1200px) {
+                        .desktop-actions-group { margin: 0 1rem; }
+                        .nav-actions { gap: 1rem; }
+                    }
 
                     @media (max-width: 992px) {
                         .mobile-menu-btn { display: block; }
@@ -312,7 +348,11 @@ export const Navbar: React.FC = () => {
                                 </div>
                                 <div className="divider" />
                                 <div className="drawer-item" onClick={() => { navigate('/preguntas'); toggleMenu(); }}>
-                                    <span>Preguntas Frecuentes</span>
+                                    <div className="item-left">
+                                        <HelpCircle size={20} />
+                                        <span>Preguntas Frecuentes</span>
+                                    </div>
+                                    <ChevronRight size={18} opacity={0.5} />
                                 </div>
                                 <div className="divider" />
                                 <div className="drawer-item" onClick={() => { navigate('/testimonios'); toggleMenu(); }}>

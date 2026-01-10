@@ -19,6 +19,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
         setTimeout(() => setAdded(false), 2000);
     };
 
+    const discountPercentage = producto.precioAnterior && producto.precioAnterior > producto.precio
+        ? Math.round(((producto.precioAnterior - producto.precio) / producto.precioAnterior) * 100)
+        : 0;
+
     return (
         <motion.div
             whileHover={{ y: -5 }}
@@ -37,11 +41,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ producto }) => {
         >
             {/* Badges */}
             <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '5px', zIndex: 2 }}>
+                {discountPercentage > 0 && (
+                    <span style={{ backgroundColor: '#FF4B4B', color: '#fff', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '10px', width: '43px', fontWeight: 'bold', textAlign: 'center' }}>-{discountPercentage}%</span>
+                )}
                 {producto.esNuevo && (
-                    <span style={{ backgroundColor: '#6C47FF', color: '#fff', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>NUEVO</span>
+                    <span style={{ backgroundColor: '#6C47FF', color: '#fff', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '10px', width: '55px', fontWeight: 'bold' }}>NUEVO</span>
                 )}
                 {producto.esMasVendido && (
-                    <span style={{ backgroundColor: '#FF9500', color: '#fff', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>TOP VENTAS</span>
+                    <span style={{ backgroundColor: '#FF9500', color: '#fff', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '10px', fontWeight: 'bold' }}>TOP VENTAS</span>
                 )}
             </div>
 

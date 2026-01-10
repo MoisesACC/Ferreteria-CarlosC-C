@@ -34,7 +34,7 @@ export const Footer: React.FC = () => {
                             </div>
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                 <Mail size={20} style={{ color: '#FFCC00', flexShrink: 0 }} />
-                                <p>info@ferreteriaspacco.com</p>
+                                <p>info@ferreteriacarloscc.com</p>
                             </div>
                         </div>
 
@@ -77,7 +77,7 @@ export const Footer: React.FC = () => {
                 </div>
 
                 <div style={{ borderTop: '1px solid #222', paddingTop: '2rem', textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>
-                    <p>© 2025 Ferreterías PACCO. Todos los Derechos Reservados.</p>
+                    <p>© 2025 Ferreterías Carlos C&C. Todos los Derechos Reservados.</p>
                 </div>
             </div>
 

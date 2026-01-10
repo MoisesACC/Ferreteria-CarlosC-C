@@ -13,6 +13,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Footer } from './components/Footer';
 
+import { Faq } from './pages/Faq';
+
 function AppRoutes() {
   const { isAdmin, user } = useAuth();
 
@@ -36,6 +38,7 @@ function AppRoutes() {
               <Route path="login" element={<Login />} />
               <Route path="finalizar-compra" element={user ? <Checkout /> : <Navigate to="/login" />} />
               <Route path="mis-pedidos" element={user ? <MyOrders /> : <Navigate to="/login" />} />
+              <Route path="preguntas" element={<Faq />} />
               <Route path="producto/:id" element={<ProductDetails />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
