@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
 import type { Pedido, Comprobante } from '../types';
-import { Package, Clock, CheckCircle, Truck, ArrowLeft, Eye, Download, Receipt, QrCode, X, CreditCard, MapPin, Calendar, Info } from 'lucide-react';
+import { Package, Clock, CheckCircle, Truck, ArrowLeft, Download, Receipt, QrCode, X, CreditCard, MapPin, Calendar, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { comprobanteService } from '../api/comprobanteService';
 
