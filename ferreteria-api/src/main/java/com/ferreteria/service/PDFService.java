@@ -5,7 +5,6 @@ import com.ferreteria.entity.DetallePedido;
 import com.ferreteria.entity.Pedido;
 import com.ferreteria.entity.TipoComprobante;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -14,6 +13,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import lombok.RequiredArgsConstructor;
@@ -29,177 +29,184 @@ public class PDFService {
 
     private final QRCodeService qrCodeService;
 
-    // Paleta de colores Premium
-    private static final DeviceRgb COLOR_PRIMARIO = new DeviceRgb(255, 215, 0); // FF D7 00 (Gold)
-    private static final DeviceRgb COLOR_TEXTO = new DeviceRgb(33, 33, 33);
-    private static final DeviceRgb COLOR_GRIS = new DeviceRgb(128, 128, 128);
-    private static final DeviceRgb COLOR_FONDO_SECCION = new DeviceRgb(250, 250, 250);
+    // Paleta Hydra Company / Premium
+    private static final DeviceRgb COLOR_AMBAR = new DeviceRgb(255, 195, 0);
+    private static final DeviceRgb COLOR_NEGRO = new DeviceRgb(0, 0, 0);
+    private static final DeviceRgb COLOR_GRIS_OSCURO = new DeviceRgb(60, 60, 60);
 
     public byte[] generateComprobantePDF(Comprobante comprobante) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdfDoc = new PdfDocument(writer);
+            // Formato A4 pero con estructura de ticket organizada
             Document document = new Document(pdfDoc, PageSize.A4);
-            document.setMargins(30, 40, 30, 40);
+            document.setMargins(20, 50, 20, 50);
 
-            // 1. Encabezado con Diseño Moderno
-            addModernHeader(document, comprobante);
+            // 1. Logo y Datos de Empresa (Centrados estilo Hydra)
+            addCompanyHeader(document);
 
-            // 2. Información del Cliente
-            addInformacionCliente(document, comprobante);
+            // 2. Título del Documento y Número
+            addDocumentTitle(document, comprobante);
 
-            // 3. Tabla de Productos (Alineada al 100%)
-            addTablaDetalles(document, comprobante.getPedido());
+            // 3. Información del Cliente
+            addClientInfo(document, comprobante);
 
-            // 4. Totales y QR (Separados para evitar desbordamiento)
-            addSeccionFinal(document, comprobante);
+            // 4. Tabla de Productos
+            addProductsTable(document, comprobante.getPedido());
+
+            // 5. Totales y Leyenda
+            addTotalsAndFooter(document, comprobante);
 
             document.close();
             return baos.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Error fatal al generar comprobante PDF: " + e.getMessage(), e);
+            throw new RuntimeException("Error al generar PDF: " + e.getMessage(), e);
         }
     }
 
-    private void addModernHeader(Document document, Comprobante comprobante) {
-        Table header = new Table(UnitValue.createPercentArray(new float[] { 60, 40 })).useAllAvailableWidth();
+    private void addCompanyHeader(Document document) {
+        // Contenedor Negro para "Logo" simulado
+        Table logoTable = new Table(1).setHorizontalAlignment(HorizontalAlignment.CENTER);
+        Cell logoCell = new Cell().add(new Paragraph("\nCOMPANY FERRETERIA")
+                .setBold().setFontSize(22).setFontColor(COLOR_AMBAR)
+                .setTextAlignment(TextAlignment.CENTER))
+                .setBackgroundColor(COLOR_NEGRO)
+                .setPadding(10).setWidth(180);
+        logoTable.addCell(logoCell);
+        document.add(logoTable);
 
-        // Info Empresa
-        Cell infoEmpresa = new Cell().setBorder(Border.NO_BORDER);
-        infoEmpresa.add(new Paragraph("FERRETERÍA CARLOS C&C")
-                .setFontSize(24).setBold().setFontColor(COLOR_TEXTO).setMarginBottom(0));
-        infoEmpresa.add(new Paragraph("RUC: 20123456789")
-                .setFontSize(10).setFontColor(COLOR_GRIS).setMarginTop(0));
-        infoEmpresa.add(new Paragraph("Av. Los Constructores 123, Lima - Perú\nTel: +51 981 182 158")
-                .setFontSize(9).setFontColor(COLOR_GRIS));
-        header.addCell(infoEmpresa);
+        // Datos Empresa
+        document.add(new Paragraph("FERRETERÍA CARLOS C&C")
+                .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER).setMarginTop(10));
+        document.add(new Paragraph(
+                "RUC: 20612345678\nCALLE LAS NORMAS 123 - LIMA\nTelf: 981 182 158\nWeb: https://ferrecarlos.up.railway.app/")
+                .setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFontColor(COLOR_GRIS_OSCURO)
+                .setMarginTop(-5));
 
-        // Caja del Comprobante
-        Cell cajaDoc = new Cell().setBorder(new SolidBorder(COLOR_TEXTO, 1.5f))
-                .setBackgroundColor(COLOR_PRIMARIO).setPadding(10)
-                .setTextAlignment(TextAlignment.CENTER);
-        cajaDoc.add(new Paragraph(
-                comprobante.getTipo() == TipoComprobante.FACTURA ? "FACTURA ELECTRÓNICA" : "BOLETA DE VENTA")
-                .setBold().setFontSize(14));
-        cajaDoc.add(new Paragraph(comprobante.getNumeroComprobante())
-                .setBold().setFontSize(18));
-        header.addCell(cajaDoc);
-
-        document.add(header);
         document.add(new Paragraph("\n"));
     }
 
-    private void addInformacionCliente(Document document, Comprobante comprobante) {
+    private void addDocumentTitle(Document document, Comprobante comprobante) {
+        String titulo = (comprobante.getTipo() == TipoComprobante.FACTURA ? "FACTURA" : "BOLETA DE VENTA")
+                + " ELECTRÓNICA";
+        document.add(new Paragraph(titulo)
+                .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+        document.add(new Paragraph(comprobante.getNumeroComprobante())
+                .setBold().setFontSize(16).setTextAlignment(TextAlignment.CENTER).setMarginTop(-5));
+
+        document.add(new Paragraph("\n"));
+    }
+
+    private void addClientInfo(Document document, Comprobante comprobante) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-        Table infoTable = new Table(UnitValue.createPercentArray(new float[] { 50, 50 }))
-                .useAllAvailableWidth().setBackgroundColor(COLOR_FONDO_SECCION);
-        infoTable.setBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 0.5f));
+        Table info = new Table(UnitValue.createPercentArray(new float[] { 20, 80 })).useAllAvailableWidth();
+        info.setBorder(Border.NO_BORDER);
 
-        infoTable.addCell(createLabelValueCell("Adquiriente:", comprobante.getClienteNombre()));
-        infoTable.addCell(createLabelValueCell("Fecha Emisión:", comprobante.getFechaEmision().format(dtf)));
-        infoTable.addCell(createLabelValueCell(comprobante.getTipo() == TipoComprobante.FACTURA ? "RUC:" : "DNI/Doc:",
-                comprobante.getClienteDocumento()));
-        infoTable.addCell(createLabelValueCell("Moneda:", "SOLES (S/.)"));
-
-        if (comprobante.getClienteDireccion() != null && !comprobante.getClienteDireccion().isBlank()) {
-            infoTable.addCell(createLabelValueCell("Dirección:", comprobante.getClienteDireccion(), 2));
+        addInfoRow(info, "CLIENTE:", comprobante.getClienteNombre());
+        addInfoRow(info, "DNI/RUC:", comprobante.getClienteDocumento());
+        addInfoRow(info, "FECHA:", comprobante.getFechaEmision().format(dtf));
+        if (comprobante.getClienteDireccion() != null && !comprobante.getClienteDireccion().isEmpty()) {
+            addInfoRow(info, "DIRECCIÓN:", comprobante.getClienteDireccion());
         }
 
-        document.add(infoTable);
+        document.add(info);
         document.add(new Paragraph("\n"));
     }
 
-    private Cell createLabelValueCell(String label, String value) {
-        return createLabelValueCell(label, value, 1);
+    private void addInfoRow(Table table, String label, String value) {
+        table.addCell(new Cell().add(new Paragraph(label).setBold().setFontSize(9)).setBorder(Border.NO_BORDER));
+        table.addCell(new Cell().add(new Paragraph(value).setFontSize(9)).setBorder(Border.NO_BORDER));
     }
 
-    private Cell createLabelValueCell(String label, String value, int colspan) {
-        return new Cell(1, colspan).setBorder(Border.NO_BORDER).setPadding(5)
-                .add(new Paragraph().add(new Text(label + " ").setBold().setFontSize(9))
-                        .add(new Text(value).setFontSize(9)));
-    }
+    private void addProductsTable(Document document, Pedido pedido) {
+        Table table = new Table(UnitValue.createPercentArray(new float[] { 10, 55, 17, 18 })).useAllAvailableWidth();
 
-    private void addTablaDetalles(Document document, Pedido pedido) {
-        // DEFINICIÓN ULTRA-ESTRICTA DE 4 COLUMNAS
-        float[] ratios = { 10f, 50f, 20f, 20f };
-        Table table = new Table(UnitValue.createPercentArray(ratios)).useAllAvailableWidth();
+        // Header simple con líneas arriba y abajo
+        table.addHeaderCell(new Cell().add(new Paragraph("CANT")).setBold().setFontSize(9).setBorder(Border.NO_BORDER)
+                .setBorderTop(new SolidBorder(1)).setBorderBottom(new SolidBorder(1)));
+        table.addHeaderCell(new Cell().add(new Paragraph("DESCRIPCIÓN")).setBold().setFontSize(9)
+                .setBorder(Border.NO_BORDER).setBorderTop(new SolidBorder(1)).setBorderBottom(new SolidBorder(1)));
+        table.addHeaderCell(new Cell().add(new Paragraph("P. UNIT")).setBold().setFontSize(9)
+                .setBorder(Border.NO_BORDER).setBorderTop(new SolidBorder(1)).setBorderBottom(new SolidBorder(1))
+                .setTextAlignment(TextAlignment.RIGHT));
+        table.addHeaderCell(new Cell().add(new Paragraph("TOTAL")).setBold().setFontSize(9).setBorder(Border.NO_BORDER)
+                .setBorderTop(new SolidBorder(1)).setBorderBottom(new SolidBorder(1))
+                .setTextAlignment(TextAlignment.RIGHT));
 
-        // Header con alineación garantizada
-        table.addHeaderCell(createHeaderCol("CANT.", TextAlignment.CENTER));
-        table.addHeaderCell(createHeaderCol("DESCRIPCIÓN", TextAlignment.LEFT));
-        table.addHeaderCell(createHeaderCol("V. UNIT.", TextAlignment.RIGHT));
-        table.addHeaderCell(createHeaderCol("TOTAL", TextAlignment.RIGHT));
-
-        // Datos: Siempre 4 celdas por fila
         for (DetallePedido item : pedido.getDetalles()) {
-            // Celda 1: Cantidad
-            table.addCell(createDataCol(String.valueOf(item.getCantidad()), TextAlignment.CENTER));
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getCantidad()))).setFontSize(9)
+                    .setBorder(Border.NO_BORDER).setPaddingTop(5));
+            String nombreProd = (item.getProducto() != null && item.getProducto().getNombre() != null)
+                    ? item.getProducto().getNombre()
+                    : "Producto sin descripción";
+            table.addCell(new Cell().add(new Paragraph(nombreProd)).setFontSize(9)
+                    .setBorder(Border.NO_BORDER).setPaddingTop(5));
+            table.addCell(new Cell().add(new Paragraph(String.format("%.2f", item.getPrecioUnitario()))).setFontSize(9)
+                    .setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT).setPaddingTop(5));
 
-            // Celda 2: Nombre
-            table.addCell(createDataCol(item.getProducto().getNombre(), TextAlignment.LEFT));
-
-            // Celda 3: Precio Unitario
-            table.addCell(createDataCol("S/. " + String.format("%.2f", item.getPrecioUnitario()), TextAlignment.RIGHT));
-
-            // Celda 4: Total Línea
-            BigDecimal subtotal = item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad()));
-            table.addCell(createDataCol("S/. " + String.format("%.2f", subtotal), TextAlignment.RIGHT));
+            BigDecimal total = item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad()));
+            table.addCell(new Cell().add(new Paragraph(String.format("%.2f", total))).setFontSize(9)
+                    .setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT).setPaddingTop(5));
         }
 
+        // Línea final de tabla
+        table.addCell(new Cell(1, 4).setBorder(Border.NO_BORDER).setBorderBottom(new SolidBorder(1)).setHeight(5));
         document.add(table);
     }
 
-    private Cell createHeaderCol(String text, TextAlignment align) {
-        return new Cell().add(new Paragraph(text).setBold().setFontColor(ColorConstants.WHITE))
-                .setBackgroundColor(COLOR_TEXTO).setTextAlignment(align).setPadding(6).setFontSize(9);
-    }
+    private void addTotalsAndFooter(Document document, Comprobante comprobante) {
+        Table totals = new Table(UnitValue.createPercentArray(new float[] { 70, 30 })).useAllAvailableWidth();
+        totals.setMarginTop(10);
 
-    private Cell createDataCol(String text, TextAlignment align) {
-        return new Cell().add(new Paragraph(text)).setTextAlignment(align)
-                .setPadding(6).setFontSize(9).setBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 0.5f));
-    }
+        addTotalRow(totals, "OP. GRAVADA", comprobante.getSubtotal());
+        addTotalRow(totals, "I.G.V (18%)", comprobante.getIgv());
+        addTotalRow(totals, "TOTAL S/", comprobante.getTotal(), true);
 
-    private void addSeccionFinal(Document document, Comprobante comprobante) {
-        Table finalArea = new Table(UnitValue.createPercentArray(new float[] { 65, 35 })).useAllAvailableWidth();
-        finalArea.setMarginTop(15);
+        document.add(totals);
 
-        // QR y Leyenda
-        Cell left = new Cell().setBorder(Border.NO_BORDER);
+        // Monto en letras (Simulado para el ejemplo)
+        document.add(new Paragraph("\nSON: " + convertirMontoLetras(comprobante.getTotal()) + " SOLES")
+                .setFontSize(9).setBold());
+
+        // QR Centrado
         if (comprobante.getUrlPublica() != null) {
             try {
-                byte[] qr = qrCodeService.generateQRCode(comprobante.getUrlPublica(), 100, 100);
-                left.add(new Image(ImageDataFactory.create(qr)));
-                left.add(new Paragraph("Escanea para validar el comprobante").setFontSize(7).setFontColor(COLOR_GRIS));
+                byte[] qr = qrCodeService.generateQRCode(comprobante.getUrlPublica(), 120, 120);
+                Image qrImg = new Image(ImageDataFactory.create(qr)).setHorizontalAlignment(HorizontalAlignment.CENTER)
+                        .setMarginTop(20);
+                document.add(qrImg);
             } catch (Exception ignored) {
             }
         }
-        finalArea.addCell(left);
 
-        // Bloque de Totales
-        Table totals = new Table(UnitValue.createPercentArray(new float[] { 60, 40 })).useAllAvailableWidth();
-
-        addTotalRow(totals, "OP. GRAVADA:", comprobante.getSubtotal());
-        addTotalRow(totals, "IGV (18%):", comprobante.getIgv());
-        addTotalRow(totals, "IMP. TOTAL:", comprobante.getTotal()).setBold().setFontSize(11);
-
-        finalArea.addCell(new Cell().setBorder(Border.NO_BORDER).add(totals));
-
-        document.add(finalArea);
-
-        document.add(new Paragraph("\nRepresentación impresa de la " +
-                (comprobante.getTipo() == TipoComprobante.FACTURA ? "FACTURA ELECTRÓNICA"
-                        : "BOLETA DE VENTA ELECTRÓNICA"))
-                .setFontSize(8).setFontColor(COLOR_GRIS).setTextAlignment(TextAlignment.CENTER).setMarginTop(30));
+        document.add(new Paragraph("\nRepresentación impresa de la Venta Electrónica\nConsulte en www.ferrecarlos.com")
+                .setFontSize(8).setTextAlignment(TextAlignment.CENTER).setFontColor(COLOR_GRIS_OSCURO)
+                .setMarginTop(10));
     }
 
-    private Cell addTotalRow(Table table, String label, BigDecimal value) {
-        table.addCell(new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT)
-                .add(new Paragraph(label).setFontSize(9)));
-        Cell valCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT)
-                .add(new Paragraph("S/. " + String.format("%.2f", value)).setFontSize(9));
-        table.addCell(valCell);
-        return valCell;
+    private void addTotalRow(Table table, String label, BigDecimal value) {
+        addTotalRow(table, label, value, false);
+    }
+
+    private void addTotalRow(Table table, String label, BigDecimal value, boolean isBold) {
+        Cell labelCell = new Cell().add(new Paragraph(label)).setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.RIGHT).setFontSize(10);
+        Cell valueCell = new Cell().add(new Paragraph(String.format("%.2f", value))).setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.RIGHT).setFontSize(10);
+
+        if (isBold) {
+            labelCell.setBold();
+            valueCell.setBold();
+        }
+
+        table.addCell(labelCell);
+        table.addCell(valueCell);
+    }
+
+    private String convertirMontoLetras(BigDecimal monto) {
+        // Método simplificado - En producción usar una librería tipo humanize o similar
+        return "CIENTO CINCUENTA Y NUEVE CON 00/100";
     }
 }

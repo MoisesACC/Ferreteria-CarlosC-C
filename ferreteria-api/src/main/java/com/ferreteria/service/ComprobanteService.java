@@ -8,6 +8,8 @@ import com.ferreteria.entity.Pedido;
 import com.ferreteria.repository.ComprobanteRepository;
 import com.ferreteria.repository.PedidoRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class ComprobanteService {
 
     private final ComprobanteRepository comprobanteRepository;
     private final PedidoRepository pedidoRepository;
+    private final com.ferreteria.repository.ProductoRepository productoRepository;
     private final PDFService pdfService;
 
     @Value("${app.base-url:https://ferrecarlos.up.railway.app/}")
@@ -41,6 +44,20 @@ public class ComprobanteService {
         // Validar que no exista ya un comprobante para este pedido
         if (comprobanteRepository.findByPedidoId(request.getPedidoId()).isPresent()) {
             throw new RuntimeException("Ya existe un comprobante para este pedido");
+        }
+
+        // Asegurar que cada detalle tenga la información completa del producto
+        // (Failsafe)
+        if (pedido.getDetalles() != null) {
+            for (com.ferreteria.entity.DetallePedido detalle : pedido.getDetalles()) {
+                if (detalle.getProducto() != null && detalle.getProducto().getNombre() == null) {
+                    com.ferreteria.entity.Producto full = productoRepository.findById(detalle.getProducto().getId())
+                            .orElse(null);
+                    if (full != null) {
+                        detalle.setProducto(full);
+                    }
+                }
+            }
         }
 
         // Generar número de comprobante
@@ -86,6 +103,74 @@ public class ComprobanteService {
     }
 
     /**
+     * Genera un comprobante automáticamente tras la confirmación del pago
+     */
+    @Transactional
+    public void generarComprobanteAutomatico(Pedido pedidoLazy) {
+        // Recargar el pedido para asegurar que todas las relaciones (Detalles ->
+        // Producto) estén cargadas
+        // Esto evita que iText reciba nombres de productos nulos si no se han
+        // refrescado desde el save inicial.
+        Pedido pedido = pedidoRepository.findByIdWithDetails(pedidoLazy.getId())
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado al generar comprobante"));
+
+        // Asegurar que cada detalle tenga la información completa del producto
+        // (Failsafe)
+        if (pedido.getDetalles() != null) {
+            for (com.ferreteria.entity.DetallePedido detalle : pedido.getDetalles()) {
+                if (detalle.getProducto() != null && detalle.getProducto().getNombre() == null) {
+                    com.ferreteria.entity.Producto full = productoRepository.findById(detalle.getProducto().getId())
+                            .orElse(null);
+                    if (full != null) {
+                        detalle.setProducto(full);
+                    }
+                }
+            }
+        }
+
+        // Evitar duplicados
+        if (comprobanteRepository.findByPedidoId(pedido.getId()).isPresent()) {
+            return;
+        }
+
+        // Lógica de Negocio: Si el documento tiene 11 dígitos, es FACTURA. Si no,
+        // BOLETA.
+        TipoComprobante tipo = TipoComprobante.BOLETA;
+        if (pedido.getClienteDocumento() != null && pedido.getClienteDocumento().trim().length() == 11) {
+            tipo = TipoComprobante.FACTURA;
+        }
+
+        String numero = generarNumeroComprobante(tipo);
+        BigDecimal subtotal = calcularSubtotal(pedido.getTotal());
+        BigDecimal igv = calcularIGV(subtotal);
+
+        Comprobante comprobante = Comprobante.builder()
+                .pedido(pedido)
+                .numeroComprobante(numero)
+                .tipo(tipo)
+                .fechaEmision(LocalDateTime.now())
+                .clienteNombre(pedido.getClienteNombre() != null ? pedido.getClienteNombre()
+                        : (pedido.getUsuario() != null ? pedido.getUsuario().getNombre() : "Cliente General"))
+                .clienteDocumento(pedido.getClienteDocumento() != null ? pedido.getClienteDocumento() : "")
+                .clienteDireccion(pedido.getClienteDireccion())
+                .clienteTelefono(pedido.getClienteTelefono())
+                .subtotal(subtotal)
+                .igv(igv)
+                .total(pedido.getTotal())
+                .estado("EMITIDO")
+                .build();
+
+        comprobante = comprobanteRepository.save(comprobante);
+
+        String url = baseUrl + "/comprobantes/ver/" + comprobante.getId();
+        comprobante.setUrlPublica(url);
+        comprobante.setQrCodeUrl(url);
+        comprobante.setPdfData(pdfService.generateComprobantePDF(comprobante));
+
+        comprobanteRepository.save(comprobante);
+    }
+
+    /**
      * Obtiene un comprobante por ID
      */
     public ComprobanteDTO obtenerComprobante(String id) {
@@ -122,6 +207,15 @@ public class ComprobanteService {
     }
 
     /**
+     * Lista comprobantes de un usuario específico
+     */
+    public List<ComprobanteDTO> listarPorUsuario(String usuarioId) {
+        return comprobanteRepository.findByPedidoUsuarioId(usuarioId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Anula un comprobante
      */
     @Transactional
@@ -143,18 +237,34 @@ public class ComprobanteService {
      * Genera el número de comprobante según el tipo
      */
     private String generarNumeroComprobante(TipoComprobante tipo) {
-        LocalDateTime ahora = LocalDateTime.now();
-        LocalDateTime inicioDia = ahora.toLocalDate().atStartOfDay();
-        LocalDateTime finDia = ahora.toLocalDate().atTime(23, 59, 59);
+        int proximoNumero = 1;
+        Optional<Comprobante> ultimo = comprobanteRepository.findFirstByTipoOrderByNumeroComprobanteDesc(tipo);
 
-        Long contador = comprobanteRepository.countByTipoAndFechaEmisionBetween(
-                tipo, inicioDia, finDia);
+        if (ultimo.isPresent()) {
+            String numCompleto = ultimo.get().getNumeroComprobante();
+            try {
+                String[] partes = numCompleto.split("-");
+                if (partes.length > 1) {
+                    proximoNumero = Integer.parseInt(partes[1]) + 1;
+                }
+            } catch (Exception e) {
+                proximoNumero = (int) comprobanteRepository.count() + 1;
+            }
+        } else {
+            proximoNumero = (int) comprobanteRepository.count() + 1;
+        }
 
         String prefijo = tipo == TipoComprobante.FACTURA ? "F" : "B";
         String serie = "001";
-        String numero = String.format("%05d", contador + 1);
+        String finalNum;
 
-        return prefijo + serie + "-" + numero;
+        // Bucle de seguridad para evitar colisiones
+        do {
+            finalNum = prefijo + serie + "-" + String.format("%05d", proximoNumero);
+            proximoNumero++;
+        } while (comprobanteRepository.findByNumeroComprobante(finalNum).isPresent());
+
+        return finalNum;
     }
 
     /**

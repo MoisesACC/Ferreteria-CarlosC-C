@@ -93,6 +93,16 @@ public class ComprobanteController {
     }
 
     /**
+     * Lista comprobantes de un usuario (Cliente)
+     * GET /api/comprobantes/usuario/{usuarioId}
+     */
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<ComprobanteDTO>> listarPorUsuario(@PathVariable String usuarioId) {
+        List<ComprobanteDTO> comprobantes = comprobanteService.listarPorUsuario(usuarioId);
+        return ResponseEntity.ok(comprobantes);
+    }
+
+    /**
      * Anula un comprobante (ADMIN)
      * PUT /api/comprobantes/{id}/anular
      */

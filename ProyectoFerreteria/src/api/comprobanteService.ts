@@ -78,6 +78,14 @@ export const comprobanteService = {
     },
 
     /**
+     * Lista comprobantes de un usuario específico
+     */
+    listarPorUsuario: async (usuarioId: string): Promise<ComprobanteDTO[]> => {
+        const response = await api.get(`/comprobantes/usuario/${usuarioId}`);
+        return response.data;
+    },
+
+    /**
      * Anula un comprobante (ADMIN)
      */
     anular: async (id: string): Promise<ComprobanteDTO> => {

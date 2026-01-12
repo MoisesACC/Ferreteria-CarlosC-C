@@ -106,6 +106,60 @@ export const Checkout: React.FC = () => {
                     ))}
                 </div>
 
+                <AnimatePresence>
+                    {loading && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            style={{
+                                position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                                backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                                backdropFilter: 'blur(10px)',
+                                zIndex: 9999,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '2rem'
+                            }}
+                        >
+                            <div style={{ position: 'relative', width: '120px', height: '120px' }}>
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                    style={{
+                                        width: '100%', height: '100%',
+                                        borderRadius: '50%',
+                                        border: '4px solid rgba(255, 195, 0, 0.1)',
+                                        borderTopColor: 'var(--primary)'
+                                    }}
+                                />
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                    style={{
+                                        position: 'absolute', top: '50%', left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        color: 'var(--primary)'
+                                    }}
+                                >
+                                    <ShieldCheck size={50} />
+                                </motion.div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <h3 style={{ color: 'white', fontSize: '1.8rem', marginBottom: '0.5rem' }}>Procesando Tu Compra</h3>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Estamos verificando tu pago y generando tu comprobante electrónico...</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)' }} />
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)' }} />
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)' }} />
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <AnimatePresence mode="wait">
                     {step === 1 && (
                         <motion.div

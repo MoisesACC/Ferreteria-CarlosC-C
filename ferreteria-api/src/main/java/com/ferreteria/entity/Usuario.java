@@ -1,5 +1,6 @@
 package com.ferreteria.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,12 @@ public class Usuario {
     private String email;
 
     @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String contrasena;
 
     private String rol;
+
+    private String documento;
+    private String direccion;
+    private String telefono;
 }

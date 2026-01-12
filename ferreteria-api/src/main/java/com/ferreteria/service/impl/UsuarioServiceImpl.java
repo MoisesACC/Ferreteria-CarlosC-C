@@ -47,10 +47,18 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setNombre(details.getNombre());
         usuario.setEmail(details.getEmail());
         usuario.setRol(details.getRol());
+        usuario.setDocumento(details.getDocumento());
+        usuario.setDireccion(details.getDireccion());
+        usuario.setTelefono(details.getTelefono());
 
-        // Only update password if provided and different (basic logic, can be refined)
+        // Solo actualizar contraseña si se proporciona una nueva y es diferente al hash
+        // actual
         if (details.getContrasena() != null && !details.getContrasena().isBlank()) {
-            usuario.setContrasena(passwordEncoder.encode(details.getContrasena()));
+            // Si la contraseña recibida es diferente al hash actual, asumimos que es una
+            // nueva contraseña en texto plano
+            if (!details.getContrasena().equals(usuario.getContrasena())) {
+                usuario.setContrasena(passwordEncoder.encode(details.getContrasena()));
+            }
         }
 
         return usuarioRepository.save(usuario);

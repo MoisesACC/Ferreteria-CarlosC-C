@@ -16,11 +16,15 @@ public interface ComprobanteRepository extends JpaRepository<Comprobante, String
 
     Optional<Comprobante> findByNumeroComprobante(String numeroComprobante);
 
+    Optional<Comprobante> findFirstByTipoOrderByNumeroComprobanteDesc(TipoComprobante tipo);
+
     List<Comprobante> findByFechaEmisionBetween(LocalDateTime desde, LocalDateTime hasta);
 
     List<Comprobante> findByTipo(TipoComprobante tipo);
 
     List<Comprobante> findByEstado(String estado);
+
+    List<Comprobante> findByPedidoUsuarioId(String usuarioId);
 
     Long countByTipoAndFechaEmisionBetween(
             TipoComprobante tipo,

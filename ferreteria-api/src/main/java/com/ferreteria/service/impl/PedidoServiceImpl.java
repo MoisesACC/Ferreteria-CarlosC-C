@@ -15,6 +15,7 @@ import java.util.List;
 public class PedidoServiceImpl implements PedidoService {
 
     private final PedidoRepository pedidoRepository;
+    private final com.ferreteria.service.ComprobanteService comprobanteService;
 
     @Override
     @Transactional
@@ -22,7 +23,11 @@ public class PedidoServiceImpl implements PedidoService {
         if (pedido.getDetalles() != null) {
             pedido.getDetalles().forEach(detalle -> detalle.setPedido(pedido));
         }
-        return pedidoRepository.save(pedido);
+        Pedido nuevo = pedidoRepository.save(pedido);
+        if ("PAGADO".equals(nuevo.getEstado())) {
+            comprobanteService.generarComprobanteAutomatico(nuevo);
+        }
+        return nuevo;
     }
 
     @Override
@@ -48,6 +53,8 @@ public class PedidoServiceImpl implements PedidoService {
     @Transactional
     public Pedido updatePedido(String id, Pedido details) {
         Pedido pedido = getPedidoById(id);
+        String anterior = pedido.getEstado();
+
         if (details.getFecha() != null)
             pedido.setFecha(details.getFecha());
         if (details.getEstado() != null)
@@ -64,7 +71,14 @@ public class PedidoServiceImpl implements PedidoService {
             pedido.setClienteDireccion(details.getClienteDireccion());
         if (details.getClienteTelefono() != null)
             pedido.setClienteTelefono(details.getClienteTelefono());
-        return pedidoRepository.save(pedido);
+
+        Pedido actualizado = pedidoRepository.save(pedido);
+
+        if ("PAGADO".equals(actualizado.getEstado()) && !"PAGADO".equals(anterior)) {
+            comprobanteService.generarComprobanteAutomatico(actualizado);
+        }
+
+        return actualizado;
     }
 
     @Override

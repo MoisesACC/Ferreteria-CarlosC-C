@@ -4,6 +4,9 @@ export interface Usuario {
     email: string;
     rol: string;
     contrasena?: string;
+    documento?: string;
+    direccion?: string;
+    telefono?: string;
 }
 
 export interface Categoria {
@@ -61,4 +64,22 @@ export interface Pedido {
     clienteDocumento?: string;
     clienteDireccion?: string;
     clienteTelefono?: string;
+}
+
+export interface Comprobante {
+    id: string;
+    pedidoId: string;
+    numeroComprobante: string;
+    tipo: 'BOLETA' | 'FACTURA';
+    fechaEmision: string;
+    clienteNombre: string;
+    clienteDocumento: string;
+    clienteDireccion?: string;
+    clienteTelefono?: string;
+    subtotal: number;
+    igv: number;
+    total: number;
+    urlPublica: string;
+    qrCodeUrl: string;
+    estado: string;
 }

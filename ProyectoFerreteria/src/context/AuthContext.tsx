@@ -5,6 +5,7 @@ interface AuthContextType {
     user: Usuario | null;
     login: (userData: Usuario) => void;
     logout: () => void;
+    updateUser: (userData: Usuario) => void;
     isAdmin: boolean;
 }
 
@@ -26,10 +27,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('proferret_user');
     };
 
+    const updateUser = (userData: Usuario) => {
+        setUser(userData);
+        localStorage.setItem('proferret_user', JSON.stringify(userData));
+    };
+
     const isAdmin = user?.rol === 'ADMIN';
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAdmin }}>
+        <AuthContext.Provider value={{ user, login, logout, updateUser, isAdmin }}>
             {children}
         </AuthContext.Provider>
     );

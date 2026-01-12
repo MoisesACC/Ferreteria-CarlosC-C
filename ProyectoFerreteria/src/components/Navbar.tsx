@@ -368,6 +368,14 @@ export const Navbar: React.FC = () => {
                                 {user && (
                                     <>
                                         <div className="divider" />
+                                        <div className="drawer-item" onClick={() => { navigate('/mis-pedidos'); toggleMenu(); }}>
+                                            <div className="item-left">
+                                                <Package size={20} />
+                                                <span>Mis Pedidos</span>
+                                            </div>
+                                            <ChevronRight size={18} opacity={0.5} />
+                                        </div>
+                                        <div className="divider" />
                                         <div className="drawer-item" onClick={() => { logout(); toggleMenu(); }}>
                                             <div className="item-left">
                                                 <LogOut size={20} />
