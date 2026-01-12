@@ -28,6 +28,8 @@ export const Checkout: React.FC = () => {
         direccion: '',
         ciudad: 'Lima',
         telefono: '',
+        clienteNombre: user?.nombre || '',
+        clienteDocumento: '',
         tarjetaNombre: user?.nombre || '',
         tarjetaNumero: '**** **** **** 4242',
         exp: '12/26',
@@ -56,6 +58,10 @@ export const Checkout: React.FC = () => {
                     fecha: new Date().toISOString().split('T')[0],
                     estado: 'PAGADO',
                     total: total,
+                    clienteNombre: form.clienteNombre,
+                    clienteDocumento: form.clienteDocumento,
+                    clienteDireccion: form.direccion,
+                    clienteTelefono: form.telefono,
                     detalles: cart.map(item => ({
                         producto: { id: item.producto.id },
                         cantidad: item.cantidad,
@@ -113,7 +119,15 @@ export const Checkout: React.FC = () => {
                                 <h2 style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}>📍 Información de Envío</h2>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
                                     <div style={{ gridColumn: 'span 2' }}>
-                                        <label className="form-label">Dirección de Entrega</label>
+                                        <label className="form-label">Nombre del Cliente (Para la factura/boleta) *</label>
+                                        <input required value={form.clienteNombre} onChange={e => setForm({ ...form, clienteNombre: e.target.value })} placeholder="Juan Pérez" />
+                                    </div>
+                                    <div style={{ gridColumn: 'span 2' }}>
+                                        <label className="form-label">DNI / RUC *</label>
+                                        <input required value={form.clienteDocumento} onChange={e => setForm({ ...form, clienteDocumento: e.target.value })} placeholder="12345678 o 20123456789" />
+                                    </div>
+                                    <div style={{ gridColumn: 'span 2' }}>
+                                        <label className="form-label">Dirección de Entrega *</label>
                                         <input required value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} placeholder="Av. Las Malvinas 123" />
                                     </div>
                                     <div>

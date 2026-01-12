@@ -30,6 +30,12 @@ public class Pedido {
     private String estado;
     private BigDecimal total;
 
+    // Datos de facturación capturados en el checkout
+    private String clienteNombre;
+    private String clienteDocumento;
+    private String clienteDireccion;
+    private String clienteTelefono;
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<DetallePedido> detalles;
 }

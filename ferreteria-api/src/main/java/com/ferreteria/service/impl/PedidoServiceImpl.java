@@ -56,6 +56,14 @@ public class PedidoServiceImpl implements PedidoService {
             pedido.setTotal(details.getTotal());
         if (details.getUsuario() != null)
             pedido.setUsuario(details.getUsuario());
+        if (details.getClienteNombre() != null)
+            pedido.setClienteNombre(details.getClienteNombre());
+        if (details.getClienteDocumento() != null)
+            pedido.setClienteDocumento(details.getClienteDocumento());
+        if (details.getClienteDireccion() != null)
+            pedido.setClienteDireccion(details.getClienteDireccion());
+        if (details.getClienteTelefono() != null)
+            pedido.setClienteTelefono(details.getClienteTelefono());
         return pedidoRepository.save(pedido);
     }
 

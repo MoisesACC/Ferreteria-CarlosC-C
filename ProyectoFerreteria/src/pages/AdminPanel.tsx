@@ -13,14 +13,33 @@ import {
     Menu,
     X,
     TrendingUp,
-    Save
+    Save,
+    Download,
+    Eye,
+    Receipt
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/api';
+import { comprobanteService } from '../api/comprobanteService';
 import type { Producto, Categoria, Pedido, Usuario } from '../types';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Logo } from '../components/Logo';
+import { GenerarComprobanteModal } from '../components/GenerarComprobanteModal';
+import Swal from 'sweetalert2';
+
+interface Comprobante {
+    id: string;
+    pedidoId: string;
+    numeroComprobante: string;
+    tipo: 'BOLETA' | 'FACTURA';
+    fechaEmision: string;
+    clienteNombre: string;
+    clienteDocumento: string;
+    total: number;
+    urlPublica: string;
+    estado: string;
+}
 
 interface SidebarItemProps {
     icon: React.ReactNode;
@@ -71,6 +90,13 @@ export const AdminPanel: React.FC = () => {
     const [isEditingCategory, setIsEditingCategory] = useState(false);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [orderSearchTerm, setOrderSearchTerm] = useState('');
+
+    // Billing States
+    const [comprobantes, setComprobantes] = useState<Comprobante[]>([]);
+    const [isGenerarComprobanteModalOpen, setIsGenerarComprobanteModalOpen] = useState(false);
+    const [selectedOrderForBilling, setSelectedOrderForBilling] = useState<string | null>(null);
+    const [selectedComprobanteForView, setSelectedComprobanteForView] = useState<Comprobante | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -78,16 +104,18 @@ export const AdminPanel: React.FC = () => {
 
     const fetchData = async () => {
         try {
-            const [prodRes, catRes, orderRes, userRes] = await Promise.all([
+            const [prodRes, catRes, orderRes, userRes, compRes] = await Promise.all([
                 api.get('/productos'),
                 api.get('/categorias'),
-                api.get('/pedidos').catch(() => ({ data: [] })), // Graceful handle if endpoint fails
-                api.get('/usuarios').catch(() => ({ data: [] }))
+                api.get('/pedidos').catch(() => ({ data: [] })),
+                api.get('/usuarios').catch(() => ({ data: [] })),
+                comprobanteService.listar().catch(() => [])
             ]);
             setProducts(prodRes.data);
             setCategories(catRes.data);
             setOrders(orderRes.data);
             setUsers(userRes.data);
+            setComprobantes(compRes);
         } catch (error) {
             console.error("Error fetching admin data", error);
         }
@@ -176,6 +204,71 @@ export const AdminPanel: React.FC = () => {
         }
     };
 
+    // Comprobante Actions
+    const handleDescargarPDF = async (comprobante: Comprobante) => {
+        try {
+            const blob = await comprobanteService.descargarPDF(comprobante.id);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${comprobante.numeroComprobante}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Descargado!',
+                text: 'El comprobante se ha descargado correctamente',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } catch (err) {
+            console.error("Error al descargar PDF", err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo descargar el PDF',
+                confirmButtonColor: '#FFD700'
+            });
+        }
+    };
+
+    const handleAnularComprobante = async (id: string) => {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción anulará el comprobante y no se puede revertir",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, anular',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await comprobanteService.anular(id);
+                fetchData();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Anulado',
+                    text: 'El comprobante ha sido anulado',
+                    confirmButtonColor: '#FFD700'
+                });
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error inesperado',
+                    confirmButtonColor: '#FFD700'
+                });
+            }
+        }
+    };
+
     const [selectedOrder, setSelectedOrder] = useState<Pedido | null>(null);
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
@@ -189,6 +282,18 @@ export const AdminPanel: React.FC = () => {
             p.marca.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [products, searchTerm]);
+
+    const filteredOrders = React.useMemo(() => {
+        let result = orders.filter(o => {
+            const searchLower = orderSearchTerm.toLowerCase();
+            const matchesId = o.id.toLowerCase().includes(searchLower);
+            const matchesClient = (o.clienteNombre || o.usuario?.nombre || '').toLowerCase().includes(searchLower);
+            return matchesId || matchesClient;
+        });
+
+        // Ordenar por fecha (más reciente primero)
+        return result.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+    }, [orders, orderSearchTerm]);
 
     useEffect(() => {
         setProductPage(1);
@@ -255,6 +360,12 @@ export const AdminPanel: React.FC = () => {
                         onClick={() => { setActiveTab('orders'); setIsMobileMenuOpen(false); }}
                     />
                     <SidebarItem
+                        icon={<Receipt size={20} />}
+                        label="Facturación"
+                        active={activeTab === 'billing'}
+                        onClick={() => { setActiveTab('billing'); setIsMobileMenuOpen(false); }}
+                    />
+                    <SidebarItem
                         icon={<Users size={20} />}
                         label="Usuarios"
                         active={activeTab === 'users'}
@@ -301,6 +412,7 @@ export const AdminPanel: React.FC = () => {
                             {activeTab === 'categories' && 'Gestión de Categorías'}
                             {activeTab === 'dashboard' && 'Panel de Resumen'}
                             {activeTab === 'orders' && 'Gestión de Pedidos'}
+                            {activeTab === 'billing' && 'Facturación Electrónica'}
                             {activeTab === 'users' && 'Gestión de Usuarios'}
                         </h1>
                         <nav style={{ fontSize: '0.9rem', color: 'var(--text-muted)', display: 'flex', gap: '0.5rem' }}>
@@ -668,8 +780,28 @@ export const AdminPanel: React.FC = () => {
                 {activeTab === 'orders' && (
                     <div className="glass-card no-hover-move" style={{ padding: '2rem' }}>
                         <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', textAlign: 'center' }}>Lista de Pedidos</h2>
-                        {orders.length === 0 ? (
-                            <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>Aún no hay pedidos registrados en el sistema.</p>
+
+                        {/* Barra de Búsqueda de Pedidos */}
+                        <div style={{ position: 'relative', maxWidth: '600px', margin: '0 auto 2rem' }}>
+                            <input
+                                placeholder="Buscar por ID de pedido o nombre del cliente..."
+                                value={orderSearchTerm}
+                                onChange={(e) => setOrderSearchTerm(e.target.value)}
+                                style={{
+                                    paddingLeft: '45px',
+                                    borderRadius: '12px',
+                                    backgroundColor: 'var(--input-bg)',
+                                    color: 'var(--input-text)',
+                                    border: '1px solid var(--border-color)',
+                                    width: '100%',
+                                    height: '48px'
+                                }}
+                            />
+                            <SearchIcon size={18} style={{ position: 'absolute', left: '15px', top: '15px', color: 'var(--text-muted)' }} />
+                        </div>
+
+                        {filteredOrders.length === 0 ? (
+                            <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No se encontraron pedidos con esos criterios.</p>
                         ) : (
                             <div style={{ overflowX: 'auto' }}>
                                 <table className="admin-table">
@@ -679,11 +811,12 @@ export const AdminPanel: React.FC = () => {
                                             <th>Cliente</th>
                                             <th>Total</th>
                                             <th>Estado</th>
+                                            <th>Comprobante</th>
                                             <th style={{ textAlign: 'right' }}>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {orders.map(o => (
+                                        {filteredOrders.map(o => (
                                             <tr key={o.id}>
                                                 <td>
                                                     <span style={{ fontWeight: '800', fontFamily: 'monospace' }}>#{o.id.slice(0, 8)}</span>
@@ -693,7 +826,13 @@ export const AdminPanel: React.FC = () => {
                                                         <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--bg-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>
                                                             {o.usuario?.nombre.charAt(0)}
                                                         </div>
-                                                        <span>{o.usuario?.nombre || 'Anonimo'}</span>
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            <span style={{ fontWeight: '600' }}>{o.clienteNombre || o.usuario?.nombre || 'Anónimo'}</span>
+                                                            {o.clienteNombre && o.usuario?.nombre && o.clienteNombre !== o.usuario.nombre && (
+                                                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Cuenta: {o.usuario.nombre}</span>
+                                                            )}
+                                                        </div>
+
                                                     </div>
                                                 </td>
                                                 <td><span style={{ fontWeight: '700' }}>S/. {o.total.toFixed(2)}</span></td>
@@ -720,6 +859,51 @@ export const AdminPanel: React.FC = () => {
                                                         <option value="CANCELADO">CANCELADO</option>
                                                     </select>
                                                 </td>
+                                                <td>
+                                                    {(() => {
+                                                        const comp = comprobantes.find(c => c.pedidoId === o.id);
+                                                        if (comp) {
+                                                            return (
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                    <span style={{
+                                                                        fontSize: '0.75rem',
+                                                                        fontWeight: '700',
+                                                                        color: comp.estado === 'EMITIDO' ? '#34C759' : '#FF3B30'
+                                                                    }}>
+                                                                        {comp.numeroComprobante}
+                                                                    </span>
+                                                                    <div style={{ display: 'flex', gap: '4px' }}>
+                                                                        <button onClick={() => setSelectedComprobanteForView(comp)} style={{ padding: '4px', background: 'transparent', color: 'var(--text-main)', border: 'none', cursor: 'pointer' }} title="Ver PDF"><Eye size={14} /></button>
+                                                                        <button onClick={() => handleDescargarPDF(comp)} style={{ padding: '4px', background: 'transparent', color: 'var(--primary)', border: 'none', cursor: 'pointer' }} title="Descargar PDF"><Download size={14} /></button>
+                                                                        {comp.estado === 'EMITIDO' && (
+                                                                            <button onClick={() => handleAnularComprobante(comp.id)} style={{ padding: '4px', background: 'transparent', color: '#FF3B30', border: 'none', cursor: 'pointer' }} title="Anular"><X size={14} /></button>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return (
+                                                            <button
+                                                                onClick={() => { setSelectedOrderForBilling(o.id); setIsGenerarComprobanteModalOpen(true); }}
+                                                                style={{
+                                                                    padding: '4px 10px',
+                                                                    borderRadius: '6px',
+                                                                    fontSize: '0.7rem',
+                                                                    fontWeight: '800',
+                                                                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                                                                    color: 'var(--primary)',
+                                                                    border: '1px solid var(--primary)',
+                                                                    cursor: 'pointer',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px'
+                                                                }}
+                                                            >
+                                                                <Receipt size={12} /> Generar
+                                                            </button>
+                                                        );
+                                                    })()}
+                                                </td>
                                                 <td style={{ textAlign: 'right' }}>
                                                     <button
                                                         onClick={() => { setSelectedOrder(o); setIsOrderModalOpen(true); }}
@@ -742,6 +926,83 @@ export const AdminPanel: React.FC = () => {
                                 </table>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {activeTab === 'billing' && (
+                    <div className="glass-card no-hover-move" style={{ padding: '0', overflow: 'hidden' }}>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th style={{ padding: '1.2rem 1.5rem' }}>N° Comprobante</th>
+                                        <th>Tipo</th>
+                                        <th>Cliente</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th style={{ textAlign: 'right', padding: '1.2rem 1.5rem' }}>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {comprobantes.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                                <Receipt size={48} style={{ margin: '0 auto 1rem', opacity: 0.2 }} />
+                                                <p>No hay comprobantes emitidos en el sistema.</p>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        comprobantes.map(comp => (
+                                            <tr key={comp.id}>
+                                                <td style={{ padding: '1.2rem 1.5rem' }}><span style={{ fontWeight: '800', fontFamily: 'monospace' }}>{comp.numeroComprobante}</span></td>
+                                                <td>
+                                                    <span style={{
+                                                        padding: '4px 10px',
+                                                        borderRadius: '6px',
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: '700',
+                                                        backgroundColor: comp.tipo === 'FACTURA' ? 'rgba(108, 71, 255, 0.1)' : 'rgba(255, 149, 0, 0.1)',
+                                                        color: comp.tipo === 'FACTURA' ? '#6C47FF' : '#FF9500'
+                                                    }}>
+                                                        {comp.tipo}
+                                                    </span>
+                                                </td>
+                                                <td>{comp.clienteNombre}</td>
+                                                <td>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{new Date(comp.fechaEmision).toLocaleDateString()}</span>
+                                                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(comp.fechaEmision).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                    </div>
+                                                </td>
+                                                <td><span style={{ fontWeight: '800' }}>S/. {comp.total.toFixed(2)}</span></td>
+                                                <td>
+                                                    <span style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px',
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: '700',
+                                                        color: comp.estado === 'EMITIDO' ? '#34C759' : '#FF3B30'
+                                                    }}>
+                                                        {comp.estado === 'EMITIDO' ? '✓ Emitido' : '✕ Anulado'}
+                                                    </span>
+                                                </td>
+                                                <td style={{ textAlign: 'right', padding: '1.2rem 1.5rem' }}>
+                                                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                                        <button onClick={() => setSelectedComprobanteForView(comp)} style={{ padding: '8px', background: 'var(--bg-dark)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '8px' }} title="Ver"><Eye size={16} /></button>
+                                                        <button onClick={() => handleDescargarPDF(comp)} style={{ padding: '8px', background: 'var(--bg-dark)', color: 'var(--primary)', border: '1px solid var(--border-color)', borderRadius: '8px' }} title="Descargar"><Download size={16} /></button>
+                                                        {comp.estado === 'EMITIDO' && (
+                                                            <button onClick={() => handleAnularComprobante(comp.id)} style={{ padding: '8px', background: 'rgba(255, 59, 48, 0.1)', color: '#FF3B30', border: '1px solid rgba(255, 59, 48, 0.2)', borderRadius: '8px' }} title="Anular"><X size={16} /></button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
@@ -923,9 +1184,32 @@ export const AdminPanel: React.FC = () => {
                             <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>ID: #{selectedOrder.id}</p>
 
                             <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: 'var(--bg-dark)', borderRadius: '12px' }}>
-                                <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}><strong>Cliente:</strong> {selectedOrder.usuario?.nombre}</p>
-                                <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}><strong>Email:</strong> {selectedOrder.usuario?.email}</p>
-                                <p style={{ fontSize: '0.9rem' }}><strong>Fecha:</strong> {new Date(selectedOrder.fecha).toLocaleDateString()}</p>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>CLIENTE FACTURACIÓN</p>
+                                        <p style={{ fontWeight: '700' }}>{selectedOrder.clienteNombre || selectedOrder.usuario?.nombre}</p>
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>DNI / RUC</p>
+                                        <p style={{ fontWeight: '700' }}>{selectedOrder.clienteDocumento || 'No registrado'}</p>
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>EMAIL CUENTA</p>
+                                        <p style={{ fontWeight: '700' }}>{selectedOrder.usuario?.email}</p>
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>TELÉFONO</p>
+                                        <p style={{ fontWeight: '700' }}>{selectedOrder.clienteTelefono || 'Sin registro'}</p>
+                                    </div>
+                                    <div style={{ gridColumn: 'span 2' }}>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>DIRECCIÓN</p>
+                                        <p style={{ fontWeight: '700' }}>{selectedOrder.clienteDireccion || 'No registrada'}</p>
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>FECHA</p>
+                                        <p style={{ fontWeight: '700' }}>{new Date(selectedOrder.fecha).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '2rem' }}>
@@ -954,11 +1238,164 @@ export const AdminPanel: React.FC = () => {
                                 <span style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)' }}>S/. {selectedOrder.total.toFixed(2)}</span>
                             </div>
 
-                            <button onClick={() => setIsOrderModalOpen(false)} className="btn-primary" style={{ width: '100%', marginTop: '2rem' }}>Cerrar</button>
+                            {/* Billing integration in Order Detail */}
+                            {(() => {
+                                const comp = comprobantes.find(c => c.pedidoId === selectedOrder.id);
+                                if (comp) {
+                                    return (
+                                        <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: 'rgba(52,199,89,0.05)', borderRadius: '12px', border: '1px solid rgba(52,199,89,0.1)' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div>
+                                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>COMPROBANTE EMITIDO</p>
+                                                    <p style={{ fontWeight: '700' }}>{comp.numeroComprobante} ({comp.tipo})</p>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    <button onClick={() => setSelectedComprobanteForView(comp)} style={{ padding: '8px', backgroundColor: 'var(--bg-dark)', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--text-main)' }} title="Ver"><Eye size={18} /></button>
+                                                    <button onClick={() => handleDescargarPDF(comp)} style={{ padding: '8px', backgroundColor: 'var(--primary)', borderRadius: '8px', border: 'none', color: '#000' }} title="Descargar"><Download size={18} /></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return (
+                                    <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                                        <button
+                                            onClick={() => {
+                                                setIsOrderModalOpen(false);
+                                                setSelectedOrderForBilling(selectedOrder.id);
+                                                setIsGenerarComprobanteModalOpen(true);
+                                            }}
+                                            style={{
+                                                padding: '10px 20px',
+                                                borderRadius: '10px',
+                                                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                                                color: 'var(--primary)',
+                                                border: '1px solid var(--primary)',
+                                                fontWeight: '800',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px',
+                                                width: '100%',
+                                                height: '48px'
+                                            }}
+                                        >
+                                            <Receipt size={18} /> Generar Comprobante de Pago
+                                        </button>
+                                    </div>
+                                );
+                            })()}
+
+                            <button onClick={() => setIsOrderModalOpen(false)} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', height: '48px', borderRadius: '12px' }}>Cerrar</button>
                         </div>
                     </div>
                 )
             }
+
+            {/* Generar Comprobante Modal */}
+            {isGenerarComprobanteModalOpen && selectedOrderForBilling && (
+                <GenerarComprobanteModal
+                    pedidoId={selectedOrderForBilling}
+                    onClose={() => {
+                        setIsGenerarComprobanteModalOpen(false);
+                        setSelectedOrderForBilling(null);
+                    }}
+                    onSuccess={() => {
+                        fetchData();
+                    }}
+                />
+            )}
+
+            {/* Visualizar Comprobante Modal */}
+            {selectedComprobanteForView && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.85)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    padding: '2rem',
+                    backdropFilter: 'blur(5px)'
+                }}>
+                    <div style={{
+                        backgroundColor: 'var(--bg-main)',
+                        borderRadius: '24px',
+                        width: '95%',
+                        maxWidth: '1000px',
+                        height: '90vh',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                        border: '1px solid var(--border-color)'
+                    }}>
+                        <div style={{
+                            padding: '1.2rem 2rem',
+                            borderBottom: '1px solid var(--border-color)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            backgroundColor: 'var(--bg-main)'
+                        }}>
+                            <div>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-main)' }}>
+                                    {selectedComprobanteForView.tipo}: {selectedComprobanteForView.numeroComprobante}
+                                </h3>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID Pedido: {selectedComprobanteForView.pedidoId.slice(0, 8)}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button
+                                    onClick={() => handleDescargarPDF(selectedComprobanteForView)}
+                                    style={{
+                                        padding: '8px 16px',
+                                        borderRadius: '10px',
+                                        backgroundColor: 'var(--primary)',
+                                        color: '#000',
+                                        border: 'none',
+                                        fontWeight: '700',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <Download size={18} /> Descargar PDF
+                                </button>
+                                <button
+                                    onClick={() => setSelectedComprobanteForView(null)}
+                                    style={{
+                                        padding: '8px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'var(--bg-dark)',
+                                        border: '1px solid var(--border-color)',
+                                        color: 'var(--text-main)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        </div>
+                        <iframe
+                            src={comprobanteService.obtenerUrlPDF(selectedComprobanteForView.id)}
+                            style={{
+                                width: '100%',
+                                height: 'calc(90vh - 70px)',
+                                border: 'none'
+                            }}
+                            title="Vista del comprobante"
+                        />
+                    </div>
+                </div>
+            )}
         </div >
     );
 };

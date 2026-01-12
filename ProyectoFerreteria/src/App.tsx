@@ -12,15 +12,18 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Footer } from './components/Footer';
-
 import { Faq } from './pages/Faq';
+import { VerComprobante } from './pages/VerComprobante';
 
 function AppRoutes() {
   const { isAdmin, user } = useAuth();
 
   return (
     <Routes>
-      {/* Admin route protected */}
+      {/* Public route for viewing receipts via QR */}
+      <Route path="/comprobantes/ver/:id" element={<VerComprobante />} />
+
+      {/* Admin routes protected */}
       <Route
         path="/admin"
         element={isAdmin ? <AdminPanel /> : <Navigate to="/login" replace />}

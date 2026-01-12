@@ -5,7 +5,7 @@ import { Star } from 'lucide-react';
 export const TestimonialsSection: React.FC = () => {
     // Semi-static list for visual excellence as per requirement
     const fallbackTestimonios: Testimonio[] = [
-        { id: 1, cliente: 'Raúl T.', comentario: 'Buenos productos en tienda, la atención fue rápida y encontré lo que buscaba.', estrellas: 5, imagen: 'https://images.unsplash.com/photo-1544717304-a2db4a7b16ee?q=80&w=400' },
+        { id: 1, cliente: 'Raúl T.', comentario: 'Buenos productos en tienda, la atención fue rápida y encontré lo que buscaba.', estrellas: 5, imagen: 'https://cdn.prod.website-files.com/632a406bba53c60f9ca58a26/65cff24e18a33e51eda1fc67_Blog%20-%20Fotografi%CC%81a%20de%20marca%20personal%20para%20tu%20sitio%20web%20y%20material%20promocional_TT.jpg' },
         { id: 2, cliente: 'José M.', comentario: 'Justo a tiempo. El envío llegó el mismo día tal como prometieron. Muy recomendable.', estrellas: 5, imagen: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400' },
         { id: 3, cliente: 'Jose C.', comentario: 'Buena compra para mi taller. Las herramientas son de calidad industrial y muy resistentes.', estrellas: 5, imagen: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=400' },
         { id: 4, cliente: 'Matías O.', comentario: 'Llegó rápido y todo ok. La amoladora Uyustools es potente y muy ergonómica.', estrellas: 4, imagen: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=400' },

@@ -57,4 +57,8 @@ export interface Pedido {
     estado: string;
     usuario?: Usuario;
     detalles?: DetallePedido[];
+    clienteNombre?: string;
+    clienteDocumento?: string;
+    clienteDireccion?: string;
+    clienteTelefono?: string;
 }

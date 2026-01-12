@@ -62,7 +62,9 @@ export const Shop: React.FC = () => {
     }, [searchTerm, selectedCategoria, selectedBrands, priceRange, sortBy, productos]);
 
     useEffect(() => {
-        setCurrentPage(1);
+        if (currentPage !== 1) {
+            setCurrentPage(1);
+        }
     }, [searchTerm, selectedCategoria, selectedBrands, priceRange, sortBy, viewMode]);
 
     const totalPages = Math.ceil(filteredProductos.length / itemsPerPage);
@@ -171,20 +173,20 @@ export const Shop: React.FC = () => {
                                 </span>
                             </div>
                             <div className="view-switcher-mini desktop-only">
-                                    <button className={`view-btn-mini ${viewMode === 'grid-2' ? 'active' : ''}`} onClick={() => setViewMode('grid-2')} title="2 Columnas">
-                                        <div className="layout-icon-mini grid-2"><span></span><span></span></div>
-                                    </button>
-                                    <button className={`view-btn-mini ${viewMode === 'grid-3' ? 'active' : ''}`} onClick={() => setViewMode('grid-3')} title="3 Columnas">
-                                        <div className="layout-icon-mini grid-3"><span></span><span></span><span></span></div>
-                                    </button>
-                                    <button className={`view-btn-mini ${viewMode === 'grid-4' ? 'active' : ''}`} onClick={() => setViewMode('grid-4')} title="4 Columnas">
-                                        <div className="layout-icon-mini grid-4"><span></span><span></span><span></span><span></span></div>
-                                    </button>
-                                    <div className="divider-v-mini"></div>
-                                    <button className={`view-btn-mini ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} title="Vista Lista">
-                                        <div className="layout-icon-mini list"><span></span><span></span><span></span></div>
-                                    </button>
-                                </div>
+                                <button className={`view-btn-mini ${viewMode === 'grid-2' ? 'active' : ''}`} onClick={() => setViewMode('grid-2')} title="2 Columnas">
+                                    <div className="layout-icon-mini grid-2"><span></span><span></span></div>
+                                </button>
+                                <button className={`view-btn-mini ${viewMode === 'grid-3' ? 'active' : ''}`} onClick={() => setViewMode('grid-3')} title="3 Columnas">
+                                    <div className="layout-icon-mini grid-3"><span></span><span></span><span></span></div>
+                                </button>
+                                <button className={`view-btn-mini ${viewMode === 'grid-4' ? 'active' : ''}`} onClick={() => setViewMode('grid-4')} title="4 Columnas">
+                                    <div className="layout-icon-mini grid-4"><span></span><span></span><span></span><span></span></div>
+                                </button>
+                                <div className="divider-v-mini"></div>
+                                <button className={`view-btn-mini ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} title="Vista Lista">
+                                    <div className="layout-icon-mini list"><span></span><span></span><span></span></div>
+                                </button>
+                            </div>
 
                             <div className="sorting-bar-right">
                                 <div className="sort-controls">
@@ -201,7 +203,7 @@ export const Shop: React.FC = () => {
                                     </select>
                                 </div>
 
-                                
+
                             </div>
                         </div>
 

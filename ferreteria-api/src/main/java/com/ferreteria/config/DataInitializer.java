@@ -2,9 +2,6 @@ package com.ferreteria.config;
 
 import com.ferreteria.entity.Usuario;
 import com.ferreteria.repository.UsuarioRepository;
-import com.ferreteria.repository.CategoriaRepository;
-import com.ferreteria.repository.ProductoRepository;
-import com.ferreteria.repository.TestimonioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,9 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataInitializer implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
-    private final CategoriaRepository categoriaRepository;
-    private final ProductoRepository productoRepository;
-    private final TestimonioRepository testimonioRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
