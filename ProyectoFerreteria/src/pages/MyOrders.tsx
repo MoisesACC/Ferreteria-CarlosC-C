@@ -16,6 +16,16 @@ export const MyOrders: React.FC = () => {
     const [selectedCompForView, setSelectedCompForView] = useState<Comprobante | null>(null);
     const navigate = useNavigate();
 
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day).toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
     const fetchData = async () => {
         if (!user?.id) return;
         setLoading(true);
@@ -107,7 +117,7 @@ export const MyOrders: React.FC = () => {
                                             </div>
                                             <h3 style={{ fontSize: '1.4rem', marginBottom: '0.3rem', fontWeight: '800' }}>S/. {order.total.toFixed(2)}</h3>
                                             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <Calendar size={14} /> {new Date(order.fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                                <Calendar size={14} /> {formatDate(order.fecha)}
                                             </p>
                                         </div>
                                     </div>

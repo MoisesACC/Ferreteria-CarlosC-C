@@ -35,7 +35,7 @@ export const Cart: React.FC = () => {
                             </div>
 
                             <Link to="/productos" className="cta-button-glamor">
-                                <span>IR A LA TIENDA</span>
+                                <span>SEGUIR COMPRANDO</span>
                                 <ArrowRight size={20} />
                             </Link>
                         </div>
@@ -45,8 +45,8 @@ export const Cart: React.FC = () => {
                         {/* Main Content Area */}
                         <div className="cart-content-flow">
                             <header className="cart-flow-header">
-                                <button onClick={() => navigate(-1)} className="nav-back-button">
-                                    <ArrowLeft size={16} /> Continuar comprando
+                                <button onClick={() => navigate(-1)} className="nav-back-button" style={{ color: 'var(--text-main)' }}>
+                                    <ArrowLeft size={16} /> Seguir comprando
                                 </button>
                                 <div className="title-stack">
                                     <h1>Cesta de Compras</h1>

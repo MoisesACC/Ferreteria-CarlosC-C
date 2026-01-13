@@ -63,7 +63,7 @@ export const ProductDetails: React.FC = () => {
     if (!product) return (
         <div style={{ minHeight: '80vh', textAlign: 'center', padding: '5rem' }}>
             <h2>Producto no encontrado</h2>
-            <button onClick={() => navigate('/productos')} className="btn-primary" style={{ marginTop: '2rem', padding: '12px 24px', borderRadius: '12px' }}>Regresar a tienda</button>
+            <button onClick={() => navigate('/productos')} className="btn-primary" style={{ marginTop: '2rem', padding: '12px 24px', borderRadius: '12px', color: '#000' }}>Seguir comprando</button>
         </div>
     );
 

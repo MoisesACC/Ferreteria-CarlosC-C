@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,7 +74,7 @@ public class ComprobanteService {
                 .pedido(pedido)
                 .numeroComprobante(numeroComprobante)
                 .tipo(request.getTipo())
-                .fechaEmision(LocalDateTime.now())
+                .fechaEmision(LocalDateTime.now(ZoneId.of("America/Lima")))
                 .clienteNombre(request.getClienteNombre())
                 .clienteDocumento(request.getClienteDocumento())
                 .clienteDireccion(request.getClienteDireccion())
@@ -148,7 +149,7 @@ public class ComprobanteService {
                 .pedido(pedido)
                 .numeroComprobante(numero)
                 .tipo(tipo)
-                .fechaEmision(LocalDateTime.now())
+                .fechaEmision(LocalDateTime.now(ZoneId.of("America/Lima")))
                 .clienteNombre(pedido.getClienteNombre() != null ? pedido.getClienteNombre()
                         : (pedido.getUsuario() != null ? pedido.getUsuario().getNombre() : "Cliente General"))
                 .clienteDocumento(pedido.getClienteDocumento() != null ? pedido.getClienteDocumento() : "")

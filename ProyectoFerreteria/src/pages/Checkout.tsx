@@ -40,7 +40,7 @@ export const Checkout: React.FC = () => {
         return (
             <div style={{ padding: '8rem 5%', textAlign: 'center' }}>
                 <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Tu carrito está vacío</h2>
-                <Link to="/productos" className="btn-primary">Ir de compras</Link>
+                <Link to="/productos" className="btn-primary" style={{ color: '#000' }}>Seguir comprando</Link>
             </div>
         );
     }
@@ -55,7 +55,7 @@ export const Checkout: React.FC = () => {
             try {
                 const pedidoData = {
                     usuario: { id: user?.id },
-                    fecha: new Date().toISOString().split('T')[0],
+                    fecha: new Date().toLocaleDateString('en-CA'),
                     estado: 'PAGADO',
                     total: total,
                     clienteNombre: form.clienteNombre,
@@ -312,8 +312,8 @@ export const Checkout: React.FC = () => {
                             </div>
 
                             <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button onClick={() => navigate('/productos')} className="btn-primary" style={{ flex: 1 }}>Seguir Comprando</button>
-                                <button onClick={() => navigate('/')} style={{ flex: 1, background: 'var(--bg-dark)', color: 'white', borderRadius: '12px' }}>Volver al Inicio</button>
+                                <button onClick={() => navigate('/productos')} className="btn-primary" style={{ flex: 1, color: '#000' }}>Seguir Comprando</button>
+                                <button onClick={() => navigate('/')} style={{ flex: 1, background: 'var(--bg-dark)', color: 'var(--text-main)', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: '700' }}>Volver al Inicio</button>
                             </div>
                         </motion.div>
                     )}

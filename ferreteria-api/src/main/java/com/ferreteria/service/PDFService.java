@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -33,6 +34,7 @@ public class PDFService {
     private static final DeviceRgb COLOR_AMBAR = new DeviceRgb(255, 195, 0);
     private static final DeviceRgb COLOR_NEGRO = new DeviceRgb(0, 0, 0);
     private static final DeviceRgb COLOR_GRIS_OSCURO = new DeviceRgb(60, 60, 60);
+    private static final String CURRENCY = "S/. ";
 
     public byte[] generateComprobantePDF(Comprobante comprobante) {
         try {
@@ -122,7 +124,6 @@ public class PDFService {
 
     private void addProductsTable(Document document, Pedido pedido) {
         Table table = new Table(UnitValue.createPercentArray(new float[] { 10, 55, 17, 18 })).useAllAvailableWidth();
-
         // Header simple con líneas arriba y abajo
         table.addHeaderCell(new Cell().add(new Paragraph("CANT")).setBold().setFontSize(9).setBorder(Border.NO_BORDER)
                 .setBorderTop(new SolidBorder(1)).setBorderBottom(new SolidBorder(1)));
@@ -143,11 +144,11 @@ public class PDFService {
                     : "Producto sin descripción";
             table.addCell(new Cell().add(new Paragraph(nombreProd)).setFontSize(9)
                     .setBorder(Border.NO_BORDER).setPaddingTop(5));
-            table.addCell(new Cell().add(new Paragraph(String.format("%.2f", item.getPrecioUnitario()))).setFontSize(9)
+            table.addCell(new Cell().add(new Paragraph(CURRENCY + String.format("%.2f", item.getPrecioUnitario()))).setFontSize(9)
                     .setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT).setPaddingTop(5));
 
             BigDecimal total = item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad()));
-            table.addCell(new Cell().add(new Paragraph(String.format("%.2f", total))).setFontSize(9)
+            table.addCell(new Cell().add(new Paragraph(CURRENCY + String.format("%.2f", total))).setFontSize(9)
                     .setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT).setPaddingTop(5));
         }
 
@@ -160,9 +161,9 @@ public class PDFService {
         Table totals = new Table(UnitValue.createPercentArray(new float[] { 70, 30 })).useAllAvailableWidth();
         totals.setMarginTop(10);
 
-        addTotalRow(totals, "OP. GRAVADA", comprobante.getSubtotal());
-        addTotalRow(totals, "I.G.V (18%)", comprobante.getIgv());
-        addTotalRow(totals, "TOTAL S/", comprobante.getTotal(), true);
+        addTotalRow(totals, "OP. GRAVADA S/.", comprobante.getSubtotal(), false);
+        addTotalRow(totals, "I.G.V (18%) S/.", comprobante.getIgv(), false);
+        addTotalRow(totals, "TOTAL S/.", comprobante.getTotal(), true);
 
         document.add(totals);
 
@@ -186,14 +187,12 @@ public class PDFService {
                 .setMarginTop(10));
     }
 
-    private void addTotalRow(Table table, String label, BigDecimal value) {
-        addTotalRow(table, label, value, false);
-    }
-
     private void addTotalRow(Table table, String label, BigDecimal value, boolean isBold) {
         Cell labelCell = new Cell().add(new Paragraph(label)).setBorder(Border.NO_BORDER)
                 .setTextAlignment(TextAlignment.RIGHT).setFontSize(10);
-        Cell valueCell = new Cell().add(new Paragraph(String.format("%.2f", value))).setBorder(Border.NO_BORDER)
+        
+        String valorFormateado = String.format("%.2f", value != null ? value : BigDecimal.ZERO);
+        Cell valueCell = new Cell().add(new Paragraph(valorFormateado)).setBorder(Border.NO_BORDER)
                 .setTextAlignment(TextAlignment.RIGHT).setFontSize(10);
 
         if (isBold) {
@@ -206,7 +205,69 @@ public class PDFService {
     }
 
     private String convertirMontoLetras(BigDecimal monto) {
-        // Método simplificado - En producción usar una librería tipo humanize o similar
-        return "CIENTO CINCUENTA Y NUEVE CON 00/100";
+        monto = monto.setScale(2, RoundingMode.HALF_UP);
+        long entero = monto.longValue();
+        int centavos = (monto.subtract(BigDecimal.valueOf(entero))).multiply(BigDecimal.valueOf(100)).intValue();
+        String letrasEntro = convertirNumeroALetras(entero);
+        return String.format("%s CON %02d/100", letrasEntro, Math.abs(centavos));
+    }
+
+    private String convertirNumeroALetras(long n) {
+        if (n == 0) return "CERO";
+        return convertirRecursivo(n).trim();
+    }
+
+    private String convertirRecursivo(long n) {
+        if (n == 0) return "";
+        if (n == 100) return "CIEN ";
+        if (n < 10) return getUnidades((int) n) + " ";
+        if (n < 20) return getTeens((int) n) + " ";
+        if (n < 30) {
+            if (n == 20) return "VEINTE ";
+            return "VEINTI" + (n == 21 ? "UN" : getUnidades((int) (n % 10))) + " ";
+        }
+        if (n < 100) {
+            int u = (int) (n % 10);
+            return getDecenas((int) (n / 10)) + (u > 0 ? " Y " + getUnidades(u) : "") + " ";
+        }
+        if (n < 1000) {
+            int c = (int) (n / 100);
+            int r = (int) (n % 100);
+            if (c == 1) return "CIENTO " + convertirRecursivo(r);
+            return getCentenas(c) + " " + convertirRecursivo(r);
+        }
+        if (n < 1000000) {
+            long mil = n / 1000;
+            long r = n % 1000;
+            String milText = (mil == 1) ? "MIL " : convertirRecursivo(mil) + "MIL ";
+            return milText + convertirRecursivo(r);
+        }
+        if (n < 1000000000) {
+            long millon = n / 1000000;
+            long r = n % 1000000;
+            String millonText = (millon == 1) ? "UN MILLON " : convertirRecursivo(millon) + "MILLONES ";
+            return millonText + convertirRecursivo(r);
+        }
+        return "MONTO MUY GRANDE ";
+    }
+
+    private String getUnidades(int n) {
+        String[] units = {"", "UN", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"};
+        return units[n];
+    }
+
+    private String getTeens(int n) {
+        String[] teens = {"DIEZ", "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISEIS", "DIECISIETE", "DIECIOCHO", "DIECINUEVE"};
+        return teens[n - 10];
+    }
+
+    private String getDecenas(int n) {
+        String[] tens = {"", "", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"};
+        return tens[n];
+    }
+
+    private String getCentenas(int n) {
+        String[] hundreds = {"", "CIEN", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"};
+        return hundreds[n];
     }
 }

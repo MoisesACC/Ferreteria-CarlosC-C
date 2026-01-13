@@ -91,6 +91,8 @@ export const AdminPanel: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [orderSearchTerm, setOrderSearchTerm] = useState('');
+    const [billingSearchTerm, setBillingSearchTerm] = useState('');
+    const [userSearchTerm, setUserSearchTerm] = useState('');
 
     // Billing States
     const [comprobantes, setComprobantes] = useState<Comprobante[]>([]);
@@ -119,6 +121,12 @@ export const AdminPanel: React.FC = () => {
         } catch (error) {
             console.error("Error fetching admin data", error);
         }
+    };
+
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day).toLocaleDateString('es-PE');
     };
 
     // Statistics Calculation (Optimized with useMemo)
@@ -230,7 +238,7 @@ export const AdminPanel: React.FC = () => {
                 icon: 'error',
                 title: 'Error',
                 text: 'No se pudo descargar el PDF',
-                confirmButtonColor: '#FFD700'
+                confirmButtonColor: '#FFCC00'
             });
         }
     };
@@ -255,7 +263,7 @@ export const AdminPanel: React.FC = () => {
                     icon: 'success',
                     title: 'Anulado',
                     text: 'El comprobante ha sido anulado',
-                    confirmButtonColor: '#FFD700'
+                    confirmButtonColor: '#FFCC00'
                 });
             } catch (err) {
                 console.error(err);
@@ -263,7 +271,7 @@ export const AdminPanel: React.FC = () => {
                     icon: 'error',
                     title: 'Error',
                     text: 'Ocurrió un error inesperado',
-                    confirmButtonColor: '#FFD700'
+                    confirmButtonColor: '#FFCC00'
                 });
             }
         }
@@ -272,9 +280,50 @@ export const AdminPanel: React.FC = () => {
     const [selectedOrder, setSelectedOrder] = useState<Pedido | null>(null);
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
+    const handleDeleteUser = async (userEmail: string) => {
+        if (userEmail === user?.email) {
+            Swal.fire({
+                icon: 'error',
+                title: 'No permitido',
+                text: 'No puedes eliminarte a ti mismo.'
+            });
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Se eliminará el usuario permanentemente.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await api.delete(`/usuarios/${userEmail}`);
+                fetchData();
+                Swal.fire('¡Eliminado!', 'El usuario ha sido removido.', 'success');
+            } catch (err) {
+                Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
+            }
+        }
+    };
+
     // Pagination for Products Tab
     const [productPage, setProductPage] = useState(1);
     const productsPerPage = 7;
+
+    const [orderPage, setOrderPage] = useState(1);
+    const ordersPerPage = 10;
+
+    const [billingPage, setBillingPage] = useState(1);
+    const billingPerPage = 10;
+
+    const [userPage, setUserPage] = useState(1);
+    const usersPerPage = 10;
 
     const filteredProducts = React.useMemo(() => {
         return products.filter(p =>
@@ -295,14 +344,52 @@ export const AdminPanel: React.FC = () => {
         return result.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
     }, [orders, orderSearchTerm]);
 
+    const filteredBilling = React.useMemo(() => {
+        let result = comprobantes.filter(c => {
+            const searchLower = billingSearchTerm.toLowerCase();
+            const matchesNum = c.numeroComprobante.toLowerCase().includes(searchLower);
+            const matchesClient = c.clienteNombre.toLowerCase().includes(searchLower);
+            return matchesNum || matchesClient;
+        });
+
+        // Ordenar por fecha de emisión (más reciente primero) - fechaEmision es ISO string
+        return result.sort((a, b) => new Date(b.fechaEmision).getTime() - new Date(a.fechaEmision).getTime());
+    }, [comprobantes, billingSearchTerm]);
+
+    const filteredUsers = React.useMemo(() => {
+        return users.filter(u =>
+            u.nombre.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+            u.email.toLowerCase().includes(userSearchTerm.toLowerCase())
+        );
+    }, [users, userSearchTerm]);
+
     useEffect(() => {
         setProductPage(1);
     }, [searchTerm]);
 
+    useEffect(() => {
+        setOrderPage(1);
+    }, [orderSearchTerm]);
+
+    useEffect(() => {
+        setBillingPage(1);
+    }, [billingSearchTerm]);
+
+    useEffect(() => {
+        setUserPage(1);
+    }, [userSearchTerm]);
+
     const totalProductPages = Math.ceil(filteredProducts.length / productsPerPage);
-    const indexOfLastProduct = productPage * productsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentAdminProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+    const currentAdminProducts = filteredProducts.slice((productPage - 1) * productsPerPage, productPage * productsPerPage);
+
+    const totalOrderPages = Math.ceil(filteredOrders.length / ordersPerPage);
+    const currentAdminOrders = filteredOrders.slice((orderPage - 1) * ordersPerPage, orderPage * ordersPerPage);
+
+    const totalBillingPages = Math.ceil(filteredBilling.length / billingPerPage);
+    const currentAdminBilling = filteredBilling.slice((billingPage - 1) * billingPerPage, billingPage * billingPerPage);
+
+    const totalUserPages = Math.ceil(filteredUsers.length / usersPerPage);
+    const currentAdminUsers = filteredUsers.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-dark)' }}>
@@ -530,7 +617,7 @@ export const AdminPanel: React.FC = () => {
                                             {stats.recentOrders.map(o => (
                                                 <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                                     <td style={{ padding: '12px 5px', fontSize: '0.85rem', fontWeight: '600' }}>{o.usuario?.nombre}</td>
-                                                    <td style={{ padding: '12px 5px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(o.fecha).toLocaleDateString()}</td>
+                                                    <td style={{ padding: '12px 5px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{formatDate(o.fecha)}</td>
                                                     <td style={{ padding: '12px 5px', fontSize: '0.85rem', fontWeight: '700' }}>S/. {o.total.toFixed(2)}</td>
                                                     <td style={{ padding: '12px 5px' }}>
                                                         <span style={{
@@ -781,26 +868,27 @@ export const AdminPanel: React.FC = () => {
                     <div className="glass-card no-hover-move" style={{ padding: '2rem' }}>
                         <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', textAlign: 'center' }}>Lista de Pedidos</h2>
 
-                        {/* Barra de Búsqueda de Pedidos */}
-                        <div style={{ position: 'relative', maxWidth: '600px', margin: '0 auto 2rem' }}>
-                            <input
-                                placeholder="Buscar por ID de pedido o nombre del cliente..."
-                                value={orderSearchTerm}
-                                onChange={(e) => setOrderSearchTerm(e.target.value)}
-                                style={{
-                                    paddingLeft: '45px',
-                                    borderRadius: '12px',
-                                    backgroundColor: 'var(--input-bg)',
-                                    color: 'var(--input-text)',
-                                    border: '1px solid var(--border-color)',
-                                    width: '100%',
-                                    height: '48px'
-                                }}
-                            />
-                            <SearchIcon size={18} style={{ position: 'absolute', left: '15px', top: '15px', color: 'var(--text-muted)' }} />
+                        <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '2rem' }}>
+                            <div style={{ position: 'relative', width: '100%', maxWidth: '450px' }}>
+                                <input
+                                    placeholder="Buscar por ID de pedido o cliente..."
+                                    value={orderSearchTerm}
+                                    onChange={(e) => setOrderSearchTerm(e.target.value)}
+                                    style={{
+                                        paddingLeft: '45px',
+                                        borderRadius: '12px',
+                                        backgroundColor: 'var(--input-bg)',
+                                        color: 'var(--input-text)',
+                                        border: '1px solid var(--border-color)',
+                                        width: '100%',
+                                        height: '48px'
+                                    }}
+                                />
+                                <SearchIcon size={18} style={{ position: 'absolute', left: '15px', top: '15px', color: 'var(--text-muted)' }} />
+                            </div>
                         </div>
 
-                        {filteredOrders.length === 0 ? (
+                        {currentAdminOrders.length === 0 ? (
                             <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No se encontraron pedidos con esos criterios.</p>
                         ) : (
                             <div style={{ overflowX: 'auto' }}>
@@ -816,7 +904,7 @@ export const AdminPanel: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredOrders.map(o => (
+                                        {currentAdminOrders.map(o => (
                                             <tr key={o.id}>
                                                 <td>
                                                     <span style={{ fontWeight: '800', fontFamily: 'monospace' }}>#{o.id.slice(0, 8)}</span>
@@ -926,110 +1014,263 @@ export const AdminPanel: React.FC = () => {
                                 </table>
                             </div>
                         )}
+
+                        {/* Paginación Pedidos */}
+                        {totalOrderPages > 1 && (
+                            <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                                    Página {orderPage} de {totalOrderPages} ({filteredOrders.length} resultados)
+                                </span>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        disabled={orderPage === 1}
+                                        onClick={() => setOrderPage(p => p - 1)}
+                                        style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-dark)', color: orderPage === 1 ? 'var(--text-muted)' : 'var(--text-main)', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}
+                                    >
+                                        Anterior
+                                    </button>
+                                    <button
+                                        disabled={orderPage === totalOrderPages}
+                                        onClick={() => setOrderPage(p => p + 1)}
+                                        style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-dark)', color: orderPage === totalOrderPages ? 'var(--text-muted)' : 'var(--text-main)', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}
+                                    >
+                                        Siguiente
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {activeTab === 'billing' && (
-                    <div className="glass-card no-hover-move" style={{ padding: '0', overflow: 'hidden' }}>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table className="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th style={{ padding: '1.2rem 1.5rem' }}>N° Comprobante</th>
-                                        <th>Tipo</th>
-                                        <th>Cliente</th>
-                                        <th>Fecha</th>
-                                        <th>Total</th>
-                                        <th>Estado</th>
-                                        <th style={{ textAlign: 'right', padding: '1.2rem 1.5rem' }}>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {comprobantes.length === 0 ? (
+                {
+                    activeTab === 'billing' && (
+                        <div className="glass-card no-hover-move" style={{ padding: '2rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '2rem' }}>
+                                <div style={{ position: 'relative', width: '100%', maxWidth: '450px' }}>
+                                    <input
+                                        placeholder="Buscar por N° Comprobante o Cliente..."
+                                        value={billingSearchTerm}
+                                        onChange={(e) => setBillingSearchTerm(e.target.value)}
+                                        style={{
+                                            paddingLeft: '45px',
+                                            borderRadius: '12px',
+                                            backgroundColor: 'var(--input-bg)',
+                                            color: 'var(--input-text)',
+                                            border: '1px solid var(--border-color)',
+                                            width: '100%',
+                                            height: '48px'
+                                        }}
+                                    />
+                                    <SearchIcon size={18} style={{ position: 'absolute', left: '15px', top: '15px', color: 'var(--text-muted)' }} />
+                                </div>
+                            </div>
+
+                            <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
+                                <table className="admin-table">
+                                    <thead>
                                         <tr>
-                                            <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                                                <Receipt size={48} style={{ margin: '0 auto 1rem', opacity: 0.2 }} />
-                                                <p>No hay comprobantes emitidos en el sistema.</p>
-                                            </td>
+                                            <th style={{ padding: '1.2rem 1.5rem' }}>N° Comprobante</th>
+                                            <th>Tipo</th>
+                                            <th>Cliente</th>
+                                            <th>Fecha</th>
+                                            <th>Total</th>
+                                            <th>Estado</th>
+                                            <th style={{ textAlign: 'right', padding: '1.2rem 1.5rem' }}>Acciones</th>
                                         </tr>
-                                    ) : (
-                                        comprobantes.map(comp => (
-                                            <tr key={comp.id}>
-                                                <td style={{ padding: '1.2rem 1.5rem' }}><span style={{ fontWeight: '800', fontFamily: 'monospace' }}>{comp.numeroComprobante}</span></td>
-                                                <td>
-                                                    <span style={{
-                                                        padding: '4px 10px',
-                                                        borderRadius: '6px',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: '700',
-                                                        backgroundColor: comp.tipo === 'FACTURA' ? 'rgba(108, 71, 255, 0.1)' : 'rgba(255, 149, 0, 0.1)',
-                                                        color: comp.tipo === 'FACTURA' ? '#6C47FF' : '#FF9500'
-                                                    }}>
-                                                        {comp.tipo}
-                                                    </span>
-                                                </td>
-                                                <td>{comp.clienteNombre}</td>
-                                                <td>
-                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                        <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{new Date(comp.fechaEmision).toLocaleDateString()}</span>
-                                                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(comp.fechaEmision).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                    </div>
-                                                </td>
-                                                <td><span style={{ fontWeight: '800' }}>S/. {comp.total.toFixed(2)}</span></td>
-                                                <td>
-                                                    <span style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '4px',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: '700',
-                                                        color: comp.estado === 'EMITIDO' ? '#34C759' : '#FF3B30'
-                                                    }}>
-                                                        {comp.estado === 'EMITIDO' ? '✓ Emitido' : '✕ Anulado'}
-                                                    </span>
-                                                </td>
-                                                <td style={{ textAlign: 'right', padding: '1.2rem 1.5rem' }}>
-                                                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                                        <button onClick={() => setSelectedComprobanteForView(comp)} style={{ padding: '8px', background: 'var(--bg-dark)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '8px' }} title="Ver"><Eye size={16} /></button>
-                                                        <button onClick={() => handleDescargarPDF(comp)} style={{ padding: '8px', background: 'var(--bg-dark)', color: 'var(--primary)', border: '1px solid var(--border-color)', borderRadius: '8px' }} title="Descargar"><Download size={16} /></button>
-                                                        {comp.estado === 'EMITIDO' && (
-                                                            <button onClick={() => handleAnularComprobante(comp.id)} style={{ padding: '8px', background: 'rgba(255, 59, 48, 0.1)', color: '#FF3B30', border: '1px solid rgba(255, 59, 48, 0.2)', borderRadius: '8px' }} title="Anular"><X size={16} /></button>
-                                                        )}
-                                                    </div>
+                                    </thead>
+                                    <tbody>
+                                        {currentAdminBilling.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                                    <Receipt size={48} style={{ margin: '0 auto 1rem', opacity: 0.2 }} />
+                                                    <p>No se encontraron comprobantes.</p>
                                                 </td>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
+                                        ) : (
+                                            currentAdminBilling.map(comp => (
+                                                <tr key={comp.id}>
+                                                    <td style={{ padding: '1.2rem 1.5rem' }}><span style={{ fontWeight: '800', fontFamily: 'monospace' }}>{comp.numeroComprobante}</span></td>
+                                                    <td>
+                                                        <span style={{
+                                                            padding: '4px 10px',
+                                                            borderRadius: '6px',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: '700',
+                                                            backgroundColor: comp.tipo === 'FACTURA' ? 'rgba(108, 71, 255, 0.1)' : 'rgba(255, 149, 0, 0.1)',
+                                                            color: comp.tipo === 'FACTURA' ? '#6C47FF' : '#FF9500'
+                                                        }}>
+                                                            {comp.tipo}
+                                                        </span>
+                                                    </td>
+                                                    <td>{comp.clienteNombre}</td>
+                                                    <td>
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{formatDate(comp.fechaEmision.split('T')[0])}</span>
+                                                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(comp.fechaEmision).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td><span style={{ fontWeight: '800' }}>S/. {comp.total.toFixed(2)}</span></td>
+                                                    <td>
+                                                        <span style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: '700',
+                                                            color: comp.estado === 'EMITIDO' ? '#34C759' : '#FF3B30'
+                                                        }}>
+                                                            {comp.estado === 'EMITIDO' ? '✓ Emitido' : '✕ Anulado'}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ textAlign: 'right', padding: '1.2rem 1.5rem' }}>
+                                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                                            <button onClick={() => setSelectedComprobanteForView(comp)} style={{ padding: '8px', background: 'var(--bg-dark)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '8px' }} title="Ver"><Eye size={16} /></button>
+                                                            <button onClick={() => handleDescargarPDF(comp)} style={{ padding: '8px', background: 'var(--bg-dark)', color: 'var(--primary)', border: '1px solid var(--border-color)', borderRadius: '8px' }} title="Descargar"><Download size={16} /></button>
+                                                            {comp.estado === 'EMITIDO' && (
+                                                                <button onClick={() => handleAnularComprobante(comp.id)} style={{ padding: '8px', background: 'rgba(255, 59, 48, 0.1)', color: '#FF3B30', border: '1px solid rgba(255, 59, 48, 0.2)', borderRadius: '8px' }} title="Anular"><X size={16} /></button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
 
-                {activeTab === 'users' && (
-                    <div className="glass-card no-hover-move" style={{ padding: '0', overflow: 'hidden' }}>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table className="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Email</th>
-                                        <th>Rol</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {users.map(u => (
-                                        <tr key={u.email}>
-                                            <td style={{ padding: '1.2rem 1.5rem' }}>{u.nombre}</td>
-                                            <td style={{ padding: '1.2rem 1.5rem' }}>{u.email}</td>
-                                            <td style={{ padding: '1.2rem 1.5rem' }}><span style={{ padding: '4px 12px', backgroundColor: u.rol === 'ADMIN' ? 'var(--primary)' : 'var(--bg-dark)', color: u.rol === 'ADMIN' ? '#000' : 'inherit', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold' }}>{u.rol}</span></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            {/* Paginación Facturación */}
+                            {totalBillingPages > 1 && (
+                                <div style={{ padding: '1.5rem', marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                                        Página {billingPage} de {totalBillingPages}
+                                    </span>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            disabled={billingPage === 1}
+                                            onClick={() => setBillingPage(p => p - 1)}
+                                            style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-dark)', color: billingPage === 1 ? 'var(--text-muted)' : 'var(--text-main)', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}
+                                        >
+                                            Anterior
+                                        </button>
+                                        <button
+                                            disabled={billingPage === totalBillingPages}
+                                            onClick={() => setBillingPage(p => p + 1)}
+                                            style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-dark)', color: billingPage === totalBillingPages ? 'var(--text-muted)' : 'var(--text-main)', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                )}
+                    )
+                }
+
+                {
+                    activeTab === 'users' && (
+                        <div className="glass-card no-hover-move" style={{ padding: '2rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '2rem' }}>
+                                <div style={{ position: 'relative', width: '100%', maxWidth: '450px' }}>
+                                    <input
+                                        placeholder="Buscar usuario o email..."
+                                        value={userSearchTerm}
+                                        onChange={(e) => setUserSearchTerm(e.target.value)}
+                                        style={{
+                                            paddingLeft: '45px',
+                                            borderRadius: '12px',
+                                            backgroundColor: 'var(--input-bg)',
+                                            color: 'var(--input-text)',
+                                            border: '1px solid var(--border-color)',
+                                            width: '100%',
+                                            height: '48px'
+                                        }}
+                                    />
+                                    <SearchIcon size={18} style={{ position: 'absolute', left: '15px', top: '15px', color: 'var(--text-muted)' }} />
+                                </div>
+                            </div>
+
+                            <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
+                                <table className="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Email</th>
+                                            <th>Rol</th>
+                                            <th style={{ textAlign: 'right' }}>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {currentAdminUsers.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay usuarios.</td>
+                                            </tr>
+                                        ) : (
+                                            currentAdminUsers.map(u => (
+                                                <tr key={u.email}>
+                                                    <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold' }}>{u.nombre}</td>
+                                                    <td style={{ padding: '1.2rem 1.5rem' }}>{u.email}</td>
+                                                    <td style={{ padding: '1.2rem 1.5rem' }}>
+                                                        <span style={{
+                                                            padding: '4px 12px',
+                                                            backgroundColor: u.rol === 'ADMIN' ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255,255,255,0.05)',
+                                                            color: u.rol === 'ADMIN' ? 'var(--primary)' : 'inherit',
+                                                            borderRadius: '8px',
+                                                            fontSize: '0.8rem',
+                                                            fontWeight: '800',
+                                                            border: u.rol === 'ADMIN' ? '1px solid var(--primary)' : 'none'
+                                                        }}>
+                                                            {u.rol}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ textAlign: 'right', padding: '1.2rem 1.5rem' }}>
+                                                        <button
+                                                            onClick={() => handleDeleteUser(u.email)}
+                                                            style={{
+                                                                padding: '8px',
+                                                                color: '#FF3B30',
+                                                                background: 'rgba(255, 59, 48, 0.1)',
+                                                                border: '1px solid rgba(255, 59, 48, 0.2)',
+                                                                borderRadius: '8px',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                            title="Eliminar usuario"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Paginación Usuarios */}
+                            {totalUserPages > 1 && (
+                                <div style={{ padding: '1.5rem', marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                                        Página {userPage} de {totalUserPages}
+                                    </span>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            disabled={userPage === 1}
+                                            onClick={() => setUserPage(p => p - 1)}
+                                            style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-dark)', color: userPage === 1 ? 'var(--text-muted)' : 'var(--text-main)', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}
+                                        >
+                                            Anterior
+                                        </button>
+                                        <button
+                                            disabled={userPage === totalUserPages}
+                                            onClick={() => setUserPage(p => p + 1)}
+                                            style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-dark)', color: userPage === totalUserPages ? 'var(--text-muted)' : 'var(--text-main)', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
             </main>
 
             {/* Product Modal */}
@@ -1207,7 +1448,7 @@ export const AdminPanel: React.FC = () => {
                                     </div>
                                     <div>
                                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>FECHA</p>
-                                        <p style={{ fontWeight: '700' }}>{new Date(selectedOrder.fecha).toLocaleDateString()}</p>
+                                        <p style={{ fontWeight: '700' }}>{formatDate(selectedOrder.fecha)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1294,108 +1535,113 @@ export const AdminPanel: React.FC = () => {
             }
 
             {/* Generar Comprobante Modal */}
-            {isGenerarComprobanteModalOpen && selectedOrderForBilling && (
-                <GenerarComprobanteModal
-                    pedidoId={selectedOrderForBilling}
-                    onClose={() => {
-                        setIsGenerarComprobanteModalOpen(false);
-                        setSelectedOrderForBilling(null);
-                    }}
-                    onSuccess={() => {
-                        fetchData();
-                    }}
-                />
-            )}
+            {
+                isGenerarComprobanteModalOpen && selectedOrderForBilling && (
+                    <GenerarComprobanteModal
+                        pedidoId={selectedOrderForBilling}
+                        onClose={() => {
+                            setIsGenerarComprobanteModalOpen(false);
+                            setSelectedOrderForBilling(null);
+                        }}
+                        onSuccess={() => {
+                            fetchData();
+                        }}
+                    />
+                )
+            }
 
             {/* Visualizar Comprobante Modal */}
-            {selectedComprobanteForView && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.85)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 9999,
-                    padding: '2rem',
-                    backdropFilter: 'blur(5px)'
-                }}>
+            {
+                selectedComprobanteForView && (
                     <div style={{
-                        backgroundColor: 'var(--bg-main)',
-                        borderRadius: '24px',
-                        width: '95%',
-                        maxWidth: '1000px',
-                        height: '90vh',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                        border: '1px solid var(--border-color)'
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        padding: '2rem',
+                        backdropFilter: 'blur(5px)'
                     }}>
                         <div style={{
-                            padding: '1.2rem 2rem',
-                            borderBottom: '1px solid var(--border-color)',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            backgroundColor: 'var(--bg-main)'
+                            backgroundColor: 'var(--bg-main)',
+                            borderRadius: '24px',
+                            width: '95%',
+                            maxWidth: '1000px',
+                            height: '90vh',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                            border: '1px solid var(--border-color)'
                         }}>
-                            <div>
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-main)' }}>
-                                    {selectedComprobanteForView.tipo}: {selectedComprobanteForView.numeroComprobante}
-                                </h3>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID Pedido: {selectedComprobanteForView.pedidoId.slice(0, 8)}</p>
+                            <div style={{
+                                padding: '1.2rem 2rem',
+                                borderBottom: '1px solid var(--border-color)',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                backgroundColor: 'var(--bg-main)'
+                            }}>
+                                <div>
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-main)' }}>
+                                        {selectedComprobanteForView.tipo}: {selectedComprobanteForView.numeroComprobante}
+                                    </h3>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID Pedido: {selectedComprobanteForView.pedidoId.slice(0, 8)}</p>
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <button
+                                        onClick={() => handleDescargarPDF(selectedComprobanteForView)}
+                                        style={{
+                                            padding: '8px 16px',
+                                            borderRadius: '10px',
+                                            backgroundColor: 'var(--primary)',
+                                            color: '#000',
+                                            border: 'none',
+                                            fontWeight: '700',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Download size={18} /> Descargar PDF
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedComprobanteForView(null)}
+                                        style={{
+                                            padding: '8px',
+                                            borderRadius: '50%',
+                                            backgroundColor: 'var(--bg-dark)',
+                                            border: '1px solid var(--border-color)',
+                                            color: 'var(--text-main)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button
-                                    onClick={() => handleDescargarPDF(selectedComprobanteForView)}
-                                    style={{
-                                        padding: '8px 16px',
-                                        borderRadius: '10px',
-                                        backgroundColor: 'var(--primary)',
-                                        color: '#000',
-                                        border: 'none',
-                                        fontWeight: '700',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    <Download size={18} /> Descargar PDF
-                                </button>
-                                <button
-                                    onClick={() => setSelectedComprobanteForView(null)}
-                                    style={{
-                                        padding: '8px',
-                                        borderRadius: '50%',
-                                        backgroundColor: 'var(--bg-dark)',
-                                        border: '1px solid var(--border-color)',
-                                        color: 'var(--text-main)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
+                            <iframe
+                                src={comprobanteService.obtenerUrlPDF(selectedComprobanteForView.id)}
+                                style={{
+                                    width: '100%',
+                                    height: 'calc(90vh - 70px)',
+                                    border: 'none',
+                                    backgroundColor: '#fff'
+                                }}
+                                title="Vista del comprobante"
+                            />
                         </div>
-                        <iframe
-                            src={comprobanteService.obtenerUrlPDF(selectedComprobanteForView.id)}
-                            style={{
-                                width: '100%',
-                                height: 'calc(90vh - 70px)',
-                                border: 'none'
-                            }}
-                            title="Vista del comprobante"
-                        />
                     </div>
-                </div>
-            )}
+                )
+            }
         </div >
     );
 };

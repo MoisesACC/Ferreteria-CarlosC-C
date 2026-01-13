@@ -117,6 +117,10 @@ button {
   border-color: var(--primary);
 }
 
+.no-hover-move:hover {
+  transform: none !important;
+}
+
 /* Swiper / Carousel Overrides */
 .pacco-banner {
   background-color: var(--primary);
