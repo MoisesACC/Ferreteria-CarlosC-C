@@ -86,7 +86,7 @@ export const Checkout: React.FC = () => {
             <div className="container" style={{ maxWidth: '1100px' }}>
 
                 {/* Steps Indicator */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4rem', gap: '3rem' }}>
+                <div className="steps-indicator" style={{ display: 'flex', justifyContent: 'center', marginBottom: '4rem', gap: '3rem' }}>
                     {[
                         { n: 1, l: 'Envío' },
                         { n: 2, l: 'Pago' },
@@ -167,11 +167,11 @@ export const Checkout: React.FC = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}
+                            className="checkout-layout"
                         >
                             <div className="glass-card" style={{ padding: '3rem' }}>
-                                <h2 style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}>📍 Información de Envío</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                                <h2 className="checkout-header-title" style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}>📍 Información de Envío</h2>
+                                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
                                     <div style={{ gridColumn: 'span 2' }}>
                                         <label className="form-label">Nombre del Cliente (Para la factura/boleta) *</label>
                                         <input required value={form.clienteNombre} onChange={e => setForm({ ...form, clienteNombre: e.target.value })} placeholder="Juan Pérez" />
@@ -209,11 +209,11 @@ export const Checkout: React.FC = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}
+                            className="checkout-layout"
                         >
                             <div className="glass-card" style={{ padding: '3rem' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-                                    <h2 style={{ fontSize: '1.8rem' }}>💳 Pago con Tarjeta</h2>
+                                    <h2 className="checkout-header-title" style={{ fontSize: '1.8rem' }}>💳 Pago con Tarjeta</h2>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="20" alt="Visa" />
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="20" alt="Mastercard" />
@@ -319,6 +319,47 @@ export const Checkout: React.FC = () => {
                     )}
                 </AnimatePresence>
             </div>
+
+            <style>{`
+                .checkout-layout {
+                    display: grid;
+                    grid-template-columns: 1fr 380px;
+                    gap: 3rem;
+                }
+
+                @media (max-width: 992px) {
+                    .checkout-layout {
+                        grid-template-columns: 1fr;
+                        gap: 2rem;
+                    }
+                    
+                    .steps-indicator {
+                        gap: 1.5rem !important;
+                        margin-bottom: 2.5rem !important;
+                        flex-wrap: wrap;
+                    }
+
+                    .glass-card {
+                        padding: 1.5rem !important;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .checkout-header-title {
+                        font-size: 1.5rem !important;
+                    }
+                    
+                    .form-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 1rem !important;
+                    }
+
+                    .btn-primary {
+                        height: 50px !important;
+                        font-size: 1rem !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

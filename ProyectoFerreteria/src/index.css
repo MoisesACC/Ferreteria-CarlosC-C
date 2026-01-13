@@ -241,3 +241,17 @@ input:focus {
     min-width: 800px;
   }
 }
+
+/* --- Responsive Helpers --- */
+@media (max-width: 768px) {
+
+  .admin-table-wrapper,
+  div[style*="overflow"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .glass-card {
+    padding: 1.25rem !important;
+  }
+}

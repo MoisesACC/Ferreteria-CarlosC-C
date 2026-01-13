@@ -94,8 +94,8 @@ export const MyOrders: React.FC = () => {
                         {orders.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()).map(order => {
                             const comp = comprobantes.find(c => c.pedidoId === order.id);
                             return (
-                                <div key={order.id} className="glass-card no-hover-move" style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                                <div key={order.id} className="glass-card no-hover-move order-card" style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div className="order-main-info" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                                         <div style={{
                                             padding: '1.2rem',
                                             backgroundColor: 'var(--bg-dark)',
@@ -121,7 +121,7 @@ export const MyOrders: React.FC = () => {
                                             </p>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <div className="order-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                                         {comp && (
                                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                 <button
@@ -185,8 +185,8 @@ export const MyOrders: React.FC = () => {
                         </div>
 
                         {/* Content Scrollable */}
-                        <div style={{ padding: '2rem', overflowY: 'auto' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+                        <div className="modal-scroll-content" style={{ padding: '2rem', overflowY: 'auto' }}>
+                            <div className="modal-info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
                                 <div className="info-item">
                                     <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '800', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block' }}>Facturado a:</label>
                                     <p style={{ fontWeight: '700' }}><MapPin size={14} style={{ marginRight: '5px' }} /> {selectedOrder.clienteNombre || user?.nombre}</p>
@@ -199,22 +199,22 @@ export const MyOrders: React.FC = () => {
                             </div>
 
                             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
-                                <thead style={{ borderBottom: '2px solid var(--border-color)' }}>
+                                <thead className="desktop-table-header" style={{ borderBottom: '2px solid var(--border-color)' }}>
                                     <tr>
                                         <th style={{ textAlign: 'left', padding: '10px 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>PRODUCTO</th>
                                         <th style={{ textAlign: 'center', padding: '10px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>CANT.</th>
                                         <th style={{ textAlign: 'right', padding: '10px 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>TOTAL</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="details-table-body">
                                     {selectedOrder.detalles?.map((d, i) => (
                                         <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <td style={{ padding: '15px 0' }}>
+                                            <td style={{ padding: '15px 0' }} className="product-cell">
                                                 <p style={{ fontWeight: '700', fontSize: '0.9rem' }}>{d.producto.nombre}</p>
                                                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{d.producto.marca}</p>
                                             </td>
-                                            <td style={{ textAlign: 'center', fontWeight: '800' }}>{d.cantidad}</td>
-                                            <td style={{ textAlign: 'right', fontWeight: '800' }}>S/. {(d.precioUnitario * d.cantidad).toFixed(2)}</td>
+                                            <td style={{ textAlign: 'center', fontWeight: '800' }} className="qty-cell">{d.cantidad}</td>
+                                            <td style={{ textAlign: 'right', fontWeight: '800' }} className="price-cell">S/. {(d.precioUnitario * d.cantidad).toFixed(2)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -237,7 +237,7 @@ export const MyOrders: React.FC = () => {
                         </div>
 
                         {/* Footer Modal Acciones */}
-                        <div style={{ padding: '2rem', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '1rem' }}>
+                        <div className="modal-footer-actions" style={{ padding: '2rem', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '1rem' }}>
                             {(() => {
                                 const comp = comprobantes.find(c => c.pedidoId === selectedOrder.id);
                                 if (comp) {
@@ -280,11 +280,11 @@ export const MyOrders: React.FC = () => {
                     backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     zIndex: 2100, backdropFilter: 'blur(15px)', padding: '2rem'
                 }}>
-                    <div className="glass-card no-hover-move" style={{
+                    <div className="glass-card no-hover-move comprobante-modal-card" style={{
                         width: '100%', maxWidth: '800px', height: '85vh', padding: '0',
                         display: 'flex', flexDirection: 'column', position: 'relative'
                     }}>
-                        <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className="comprobante-header" style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                                 <h3 style={{ fontWeight: '800' }}>{selectedCompForView.tipo}: {selectedCompForView.numeroComprobante}</h3>
                                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Emitido el {new Date(selectedCompForView.fechaEmision).toLocaleDateString()}</p>
@@ -311,13 +311,13 @@ export const MyOrders: React.FC = () => {
                             />
                         </div>
 
-                        <div style={{ padding: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-                                <div style={{ textAlign: 'left' }}>
+                        <div className="comprobante-footer" style={{ padding: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>
+                            <div className="qr-section" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+                                <div style={{ textAlign: 'left' }} className="qr-text">
                                     <p style={{ fontSize: '0.85rem', fontWeight: '800', marginBottom: '5px' }}>Validación Sunat</p>
                                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Puedes validar este documento escaneando el código QR oficial desde tu celular.</p>
                                 </div>
-                                <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '12px' }}>
+                                <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '12px' }} className="qr-image">
                                     <QrCode size={80} color="black" />
                                 </div>
                             </div>
@@ -325,6 +325,98 @@ export const MyOrders: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            <style>{`
+                @media (max-width: 768px) {
+                    .order-card {
+                        flex-direction: column;
+                        align-items: stretch !important;
+                        gap: 1.5rem;
+                        padding: 1.5rem !important;
+                    }
+
+                    .order-main-info {
+                        gap: 1rem !important;
+                    }
+
+                    .order-actions {
+                        width: 100%;
+                        justify-content: space-between;
+                        border-top: 1px solid var(--border-color);
+                        padding-top: 1rem;
+                    }
+
+                    .modal-info-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 1.5rem !important;
+                    }
+
+                    .info-item {
+                        text-align: left !important;
+                    }
+
+                    .modal-footer-actions {
+                        flex-direction: column-reverse;
+                        padding: 1.5rem !important;
+                    }
+
+                    .modal-footer-actions button {
+                        width: 100% !important;
+                        flex: none !important;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    h1 {
+                        font-size: 1.8rem !important;
+                    }
+
+                    .order-card {
+                        padding: 1.2rem !important;
+                    }
+
+                    .order-actions {
+                        flex-direction: column;
+                        gap: 0.8rem !important;
+                    }
+
+                    .order-actions button {
+                        width: 100% !important;
+                        justify-content: center;
+                    }
+
+                    .comprobante-header {
+                        padding: 1rem !important;
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 1rem;
+                    }
+
+                    .comprobante-modal-card {
+                        height: 95vh !important;
+                    }
+
+                    .comprobante-footer {
+                        padding: 1rem !important;
+                    }
+
+                    .qr-section {
+                        gap: 1rem !important;
+                    }
+
+                    .qr-text {
+                        display: none;
+                    }
+
+                    .qty-cell {
+                        display: none;
+                    }
+
+                    .desktop-table-header th:nth-child(2) {
+                        display: none;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

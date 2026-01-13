@@ -568,12 +568,31 @@ export const AdminPanel: React.FC = () => {
                         .hide-on-mobile { display: none; }
                         .desktop-only { display: none; }
                     }
+
+                    @media (max-width: 768px) {
+                        .admin-header h1 {
+                            font-size: 1.5rem !important;
+                        }
+                        
+                        .dashboard-grid {
+                            grid-template-columns: 1fr !important;
+                        }
+                        
+                        .dashboard-stats-grid {
+                           grid-template-columns: 1fr !important;
+                        }
+
+                        .admin-table-wrapper {
+                            overflow-x: auto;
+                            -webkit-overflow-scrolling: touch;
+                        }
+                    }
                 `}</style>
 
                 {/* Dashboard Stats */}
                 {activeTab === 'dashboard' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                        <div className="dashboard-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
                             {
                                 [
                                     { label: 'Ventas Totales', value: `S/. ${stats.totalSales.toFixed(2)}`, icon: <TrendingUp />, color: '#34C759', description: 'Ingresos brutos acumulados' },
@@ -596,14 +615,14 @@ export const AdminPanel: React.FC = () => {
                             }
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+                        <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
                             {/* Recent Activity */}
                             <div className="glass-card no-hover-move" style={{ padding: '1.5rem', border: '1px solid var(--border-color)' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                                     <h2 style={{ fontSize: '1.2rem', fontWeight: '800' }}>Ventas Recientes</h2>
                                     <button onClick={() => setActiveTab('orders')} style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700', background: 'transparent' }}>Ver todas</button>
                                 </div>
-                                <div style={{ overflowX: 'auto' }}>
+                                <div className="admin-table-wrapper" style={{ overflowX: 'auto' }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                         <thead>
                                             <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
