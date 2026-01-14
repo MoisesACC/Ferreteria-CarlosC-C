@@ -23,6 +23,11 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.login(loginRequest));
     }
 
+    @PostMapping("/login/google")
+    public ResponseEntity<Usuario> loginWithGoogle(@RequestBody com.ferreteria.dto.GoogleLoginRequest request) {
+        return ResponseEntity.ok(usuarioService.loginWithGoogle(request.getTokenId()));
+    }
+
     @PostMapping
     public ResponseEntity<Usuario> createUsuario(@Valid @RequestBody Usuario usuario) {
         return new ResponseEntity<>(usuarioService.createUsuario(usuario), HttpStatus.CREATED);

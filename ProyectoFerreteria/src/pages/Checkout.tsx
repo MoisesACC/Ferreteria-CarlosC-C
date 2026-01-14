@@ -171,33 +171,35 @@ export const Checkout: React.FC = () => {
                         >
                             <div className="glass-card" style={{ padding: '3rem' }}>
                                 <h2 className="checkout-header-title" style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}>📍 Información de Envío</h2>
-                                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                                    <div style={{ gridColumn: 'span 2' }}>
-                                        <label className="form-label">Nombre del Cliente (Para la factura/boleta) *</label>
-                                        <input required value={form.clienteNombre} onChange={e => setForm({ ...form, clienteNombre: e.target.value })} placeholder="Juan Pérez" />
+                                <form onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
+                                    <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                                        <div style={{ gridColumn: 'span 2' }}>
+                                            <label className="form-label">Nombre del Cliente (Para la factura/boleta) *</label>
+                                            <input required value={form.clienteNombre} onChange={e => setForm({ ...form, clienteNombre: e.target.value })} placeholder="Juan Pérez" />
+                                        </div>
+                                        <div style={{ gridColumn: 'span 2' }}>
+                                            <label className="form-label">DNI / RUC *</label>
+                                            <input required value={form.clienteDocumento} onChange={e => setForm({ ...form, clienteDocumento: e.target.value })} placeholder="12345678 o 20123456789" />
+                                        </div>
+                                        <div style={{ gridColumn: 'span 2' }}>
+                                            <label className="form-label">Dirección de Entrega *</label>
+                                            <input required value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} placeholder="Av. Las Malvinas 123" />
+                                        </div>
+                                        <div>
+                                            <label className="form-label">Ciudad</label>
+                                            <input required value={form.ciudad} readOnly placeholder="Lima" />
+                                        </div>
+                                        <div>
+                                            <label className="form-label">Teléfono de Contacto</label>
+                                            <input required value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} placeholder="999 999 999" />
+                                        </div>
+                                        <div style={{ gridColumn: 'span 2', marginTop: '2rem' }}>
+                                            <button type="submit" className="btn-primary" style={{ width: '100%', height: '60px', fontSize: '1.1rem' }}>
+                                                Continuar al Pago
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div style={{ gridColumn: 'span 2' }}>
-                                        <label className="form-label">DNI / RUC *</label>
-                                        <input required value={form.clienteDocumento} onChange={e => setForm({ ...form, clienteDocumento: e.target.value })} placeholder="12345678 o 20123456789" />
-                                    </div>
-                                    <div style={{ gridColumn: 'span 2' }}>
-                                        <label className="form-label">Dirección de Entrega *</label>
-                                        <input required value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} placeholder="Av. Las Malvinas 123" />
-                                    </div>
-                                    <div>
-                                        <label className="form-label">Ciudad</label>
-                                        <input required value={form.ciudad} readOnly placeholder="Lima" />
-                                    </div>
-                                    <div>
-                                        <label className="form-label">Teléfono de Contacto</label>
-                                        <input required value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} placeholder="999 999 999" />
-                                    </div>
-                                    <div style={{ gridColumn: 'span 2', marginTop: '2rem' }}>
-                                        <button onClick={() => setStep(2)} className="btn-primary" style={{ width: '100%', height: '60px', fontSize: '1.1rem' }}>
-                                            Continuar al Pago
-                                        </button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                             <OrderSummary total={total} cart={cart} />
                         </motion.div>

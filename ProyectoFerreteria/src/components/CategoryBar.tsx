@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     LayoutGrid,
     Hammer,
@@ -53,6 +53,7 @@ export const CategoryBar: React.FC = () => {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
     const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         api.get('/categorias').then(res => setCategorias(res.data));
@@ -79,10 +80,19 @@ export const CategoryBar: React.FC = () => {
                 {/* 1. Botón "Todas las Categorías" (Estilo Sodimac/Promart) */}
                 <div
                     className="mega-menu-trigger"
-                    onMouseEnter={() => setIsMegaMenuOpen(true)}
-                    onMouseLeave={() => setIsMegaMenuOpen(false)}
+                    onMouseEnter={() => {
+                        if (window.innerWidth > 992) setIsMegaMenuOpen(true);
+                    }}
+                    onMouseLeave={() => {
+                        if (window.innerWidth > 992) setIsMegaMenuOpen(false);
+                    }}
                 >
-                    <button className="mega-btn">
+                    <button
+                        className="mega-btn"
+                        onClick={() => {
+                            if (window.innerWidth <= 992) setIsMegaMenuOpen(!isMegaMenuOpen);
+                        }}
+                    >
                         <LayoutGrid size={20} />
                         <span>VER CATEGORÍAS</span>
                         <ChevronDown size={16} className={`arrow ${isMegaMenuOpen ? 'open' : ''}`} />
@@ -104,6 +114,12 @@ export const CategoryBar: React.FC = () => {
                                                 key={cat.id}
                                                 className={`mega-sidebar-item ${hoveredCategory === cat.id ? 'active' : ''}`}
                                                 onMouseEnter={() => setHoveredCategory(cat.id)}
+                                                onClick={() => {
+                                                    if (window.innerWidth <= 992) {
+                                                        navigate(`/productos?categoria=${cat.id}`);
+                                                        setIsMegaMenuOpen(false);
+                                                    }
+                                                }}
                                             >
                                                 <div className="item-content">
                                                     {getIcon(cat.nombre)}

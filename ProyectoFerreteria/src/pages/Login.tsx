@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
@@ -46,6 +47,26 @@ export const Login: React.FC = () => {
             }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Error al procesar la solicitud');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await api.post('/usuarios/login/google', {
+                tokenId: credentialResponse.credential
+            });
+            login(response.data);
+            if (response.data.rol === 'ADMIN') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
+        } catch (err: any) {
+            setError('Error al iniciar sesión con Google');
         } finally {
             setLoading(false);
         }
@@ -141,6 +162,23 @@ export const Login: React.FC = () => {
                         {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? 'Iniciar Sesión' : 'Registrarse')}
                         {!loading && <ArrowRight size={20} />}
                     </button>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1rem 0' }}>
+                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>O continúa con</span>
+                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError('Error en la autenticación de Google')}
+                            useOneTap
+                            theme="filled_blue"
+                            shape="pill"
+                            width="100%"
+                        />
+                    </div>
                 </form>
 
                 <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>

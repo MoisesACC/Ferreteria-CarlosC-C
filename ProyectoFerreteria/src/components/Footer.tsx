@@ -61,7 +61,8 @@ export const Footer: React.FC = () => {
                     <div>
                         <h4 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '2rem', borderBottom: '2px solid #FFCC00', width: 'fit-content', paddingBottom: '5px' }}>Enlaces Rápidos</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', color: '#ccc' }}>
-                            {['Nosotros', 'Mi Cuenta', 'Mis Pedidos', 'Términos y Condiciones', 'Políticas de Envío'].map(link => (
+                            <Link to="/nosotros" style={{ textDecoration: 'none', color: 'inherit', transition: '0.3s' }} className="footer-link">Nosotros</Link>
+                            {['Mi Cuenta', 'Mis Pedidos', 'Términos y Condiciones', 'Políticas de Envío'].map(link => (
                                 <Link key={link} to="/" style={{ textDecoration: 'none', color: 'inherit', transition: '0.3s' }} className="footer-link">{link}</Link>
                             ))}
                         </div>
@@ -71,7 +72,7 @@ export const Footer: React.FC = () => {
                     <div style={{ textAlign: 'center' }}>
                         <h4 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '2rem' }}>Libro de Reclamaciones</h4>
                         <a href="#">
-                            <img src="https://ferreteriaspacco.com/cdn/shop/files/libro-de-reclamaciones.png?v=1711656842&width=200" alt="Libro de Reclamaciones" style={{ width: '180px', filter: 'brightness(0) invert(1)' }} />
+                            <img src="https://www.sutran.gob.pe/wp-content/uploads/2022/11/logo_libro_reclam.jpg" alt="Libro de Reclamaciones" style={{ width: '180px', }} />
                         </a>
                     </div>
                 </div>

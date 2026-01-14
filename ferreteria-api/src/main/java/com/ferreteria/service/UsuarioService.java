@@ -16,4 +16,6 @@ public interface UsuarioService {
     void deleteUsuario(String id);
 
     Usuario login(LoginRequest loginRequest);
+
+    Usuario loginWithGoogle(String tokenId);
 }

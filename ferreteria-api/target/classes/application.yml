@@ -22,3 +22,6 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID:785001800952-19cjcasbrhs990aqe5kpm02olc7nsova.apps.googleusercontent.com}
