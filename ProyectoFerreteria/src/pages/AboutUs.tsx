@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Award, Users, Target, Rocket, History, Briefcase, TrendingUp, Heart } from 'lucide-react';
+import { Target, TrendingUp, Heart } from 'lucide-react';
 
 export const AboutUs: React.FC = () => {
     return (
