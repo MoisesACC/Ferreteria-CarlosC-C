@@ -85,30 +85,56 @@ export const ProductDetails: React.FC = () => {
             <div className="container">
                 <main className="product-layout">
                     {/* Left: Gallery Section */}
-                    <div className="product-gallery">
-                        <div className="thumb-carousel">
-                            {allImages.map((img, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`thumb-item ${activeImage === img ? 'active' : ''}`}
-                                    onMouseEnter={() => setActiveImage(img)}
-                                >
-                                    <img src={img} alt={`${product.nombre} view ${idx}`} />
-                                </div>
-                            ))}
+                    <div className="left-column">
+                        <div className="product-gallery">
+                            <div className="thumb-carousel">
+                                {allImages.map((img, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`thumb-item ${activeImage === img ? 'active' : ''}`}
+                                        onMouseEnter={() => setActiveImage(img)}
+                                    >
+                                        <img src={img} alt={`${product.nombre} view ${idx}`} />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="main-display">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={activeImage}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="main-image-container"
+                                    >
+                                        <img src={activeImage} alt={product.nombre} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
                         </div>
-                        <div className="main-display">
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={activeImage}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="main-image-container"
-                                >
-                                    <img src={activeImage} alt={product.nombre} />
-                                </motion.div>
-                            </AnimatePresence>
+
+                        <div className="trust-ribbon">
+                            <div className="trust-card">
+                                <Truck size={28} />
+                                <div className="card-text">
+                                    <strong>Envío Gratis</strong>
+                                    <span>Desde S/. 200</span>
+                                </div>
+                            </div>
+                            <div className="trust-card">
+                                <Undo size={28} />
+                                <div className="card-text">
+                                    <strong>Cambios</strong>
+                                    <span>30 días</span>
+                                </div>
+                            </div>
+                            <div className="trust-card">
+                                <ShieldCheck size={28} />
+                                <div className="card-text">
+                                    <strong>Garantía</strong>
+                                    <span>100% Original</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -179,30 +205,6 @@ export const ProductDetails: React.FC = () => {
                                         <><ShoppingCart size={22} /> Añadir al Carrito</>
                                     )}
                                 </button>
-                            </div>
-
-                            <div className="trust-ribbon">
-                                <div className="trust-card">
-                                    <Truck size={24} />
-                                    <div className="card-text">
-                                        <strong>Envío Gratis</strong>
-                                        <span>Desde S/. 200</span>
-                                    </div>
-                                </div>
-                                <div className="trust-card">
-                                    <Undo size={24} />
-                                    <div className="card-text">
-                                        <strong>Cambios</strong>
-                                        <span>30 días</span>
-                                    </div>
-                                </div>
-                                <div className="trust-card">
-                                    <ShieldCheck size={24} />
-                                    <div className="card-text">
-                                        <strong>Garantía</strong>
-                                        <span>100% Original</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -276,6 +278,7 @@ export const ProductDetails: React.FC = () => {
                 .product-layout { display: grid; grid-template-columns: 1fr 450px; gap: 4rem; margin-bottom: 5rem; }
                 
                 /* Gallery */
+                .left-column { display: flex; flex-direction: column; gap: 2rem; }
                 .product-gallery { display: flex; gap: 1.5rem; }
                 .thumb-carousel { display: flex; flex-direction: column; gap: 1rem; width: 80px; }
                 .thumb-item { width: 80px; height: 80px; border-radius: 12px; border: 1px solid #eee; padding: 8px; cursor: pointer; transition: 0.3s; background: #fff; overflow: hidden; }
@@ -283,7 +286,7 @@ export const ProductDetails: React.FC = () => {
                 .thumb-item img { width: 100%; height: 100%; object-fit: contain; }
                 .main-display { flex: 1; background: #fff; border-radius: 24px; border: 1px solid #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 550px; }
                 .main-image-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-                .main-image-container img { max-width: 100%; max-height: 130%; object-fit: contain; }
+                .main-image-container img { max-width: 100%; max-height: 120%; object-fit: contain; }
 
                 /* Content */
                 .content-sticky { position: sticky; top: 100px; }
@@ -318,11 +321,13 @@ export const ProductDetails: React.FC = () => {
                 .add-button:hover { background: var(--primary); color: #000; transform: translateY(-2px); }
                 .add-button.success { background: #34C759; color: #fff; }
 
-                .trust-ribbon { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding-top: 2rem; border-top: 1px solid #f0f0f0; }
-                .trust-card { display: flex; flex-direction: column; gap: 5px; color: #666; }
-                .trust-card svg { color: var(--primary); }
-                .trust-card strong { font-size: 0.8rem; font-weight: 800; color: #1a1a1a; }
-                .trust-card span { font-size: 0.7rem; }
+                .trust-ribbon { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; padding: 1.5rem; background: #f9f9f9; border-radius: 16px; margin-top: 1rem; }
+                .trust-card { display: flex; flex-direction: row; align-items: center; gap: 1rem; color: #666; padding: 0.5rem; transition: 0.3s; }
+                .trust-card:hover { transform: translateY(-3px); }
+                .trust-card svg { color: var(--primary); min-width: 28px; height: 28px; }
+                .card-text { display: flex; flex-direction: column; justify-content: center; }
+                .trust-card strong { font-size: 0.9rem; font-weight: 800; color: #1a1a1a; line-height: 1.2; margin-bottom: 2px; }
+                .trust-card span { font-size: 0.75rem; color: #888; font-weight: 500; }
 
                 /* Tabs Section */
                 .details-tabs { border-top: 1px solid #eee; padding-top: 3rem; }
@@ -343,17 +348,79 @@ export const ProductDetails: React.FC = () => {
                 @media (max-width: 1024px) {
                     .product-layout { grid-template-columns: 1fr; gap: 3rem; }
                     .content-sticky { position: static; }
-                    .main-display { height: 450px; }
+                    .main-display { height: 400px; }
+                    .left-column { gap: 1.5rem; }
                 }
 
                 @media (max-width: 768px) {
-                    .product-gallery { flex-direction: column-reverse; }
-                    .thumb-carousel { flex-direction: row; width: 100%; overflow-x: auto; }
-                    .title-text { font-size: 2.2rem; }
-                    .current-price .value { font-size: 3rem; }
-                    .buying-actions { grid-template-columns: 1fr; }
-                    .tabs-nav { gap: 2rem; overflow-x: auto; }
-                    .tabs-nav button { font-size: 1rem; }
+                    .product-details-container { padding-bottom: 2rem; }
+                    .product-layout { gap: 1.5rem; margin-bottom: 3rem; }
+                    
+                    /* Gallery Mobile */
+                    .product-gallery { flex-direction: column-reverse; gap: 1rem; }
+                    
+                    /* Thumbnails: Robust Scroll Track */
+                    .thumb-carousel { 
+                        display: grid;
+                        grid-auto-flow: column;
+                        grid-auto-columns: 80px; /* Width + Gap space */
+                        gap: 1rem;
+                        
+                        width: 100%;
+                        max-width: calc(100vw - 2rem); /* Force constraint within viewport minus padding */
+                        
+                        overflow-x: auto; 
+                        overscroll-behavior-x: contain; /* Prevent scrolling parent page */
+                        
+                        padding: 0.5rem 0.5rem 1rem 0.5rem;
+                        scrollbar-width: none;
+                        
+                        /* Scroll Snapping for premium feel */
+                        scroll-snap-type: x mandatory;
+                        
+                        mask-image: linear-gradient(to right, black 85%, transparent 100%);
+                        -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+                    }
+                    .thumb-carousel::-webkit-scrollbar { display: none; }
+                    
+                    .thumb-item { 
+                        width: 70px; 
+                        height: 70px; 
+                        border-radius: 12px; 
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        scroll-snap-align: start; /* Snap to images */
+                    }
+                    
+                    .main-display { height: 320px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+                    .main-image-container { padding: 1.5rem; }
+                    .main-image-container img { max-height: 100%; max-width: 100%; object-fit: contain; }
+
+                    /* Trust Ribbon Stack for Mobile */
+                    .trust-ribbon { grid-template-columns: 1fr; gap: 0.8rem; padding: 1rem; margin-top: 0; }
+                    .trust-card { 
+                        padding: 0.8rem 1rem; 
+                        background: #fff; 
+                        border-radius: 12px; 
+                        border: 1px solid #f0f0f0; 
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                    }
+                    
+                    /* Info Section */
+                    .meta-info { margin-bottom: 0.5rem; }
+                    .title-text { font-size: 1.8rem; margin-bottom: 0.5rem; line-height: 1.2; }
+                    .category-label { font-size: 0.7rem; }
+                    .current-price .value { font-size: 2.5rem; }
+                    
+                    /* Actions Stack */
+                    .buying-actions { grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 2rem; }
+                    .quantity-control { margin-bottom: 0.2rem; }
+                    .control-box { padding: 10px; }
+                    .add-button { padding: 14px; font-size: 1rem; }
+
+                    /* Tabs */
+                    .details-tabs { padding-top: 2rem; }
+                    .tabs-nav { gap: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
+                    .tabs-nav button { font-size: 1rem; padding: 0.5rem 0; }
                 }
             `}</style>
         </div>
