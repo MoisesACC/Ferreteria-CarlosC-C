@@ -31,9 +31,11 @@ public class Producto {
     private Integer stock;
     private String imagen; // Principal image
 
-    @ElementCollection
-    @CollectionTable(name = "producto_imagenes", joinColumns = @JoinColumn(name = "producto_id"))
-    @Column(name = "imagen_url")
+    // @ElementCollection
+    // @CollectionTable(name = "producto_imagenes", joinColumns = @JoinColumn(name =
+    // "producto_id"))
+    // @Column(name = "imagen_url")
+    @Transient // Marcamos como Transient para que Hibernate la ignore por ahora
     private List<String> imagenesAdicionales;
 
     private Boolean esOferta;
