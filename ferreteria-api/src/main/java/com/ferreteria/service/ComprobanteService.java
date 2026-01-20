@@ -30,7 +30,7 @@ public class ComprobanteService {
     private final com.ferreteria.repository.ProductoRepository productoRepository;
     private final PDFService pdfService;
 
-    @Value("${app.base-url:https://ferrecarlos.up.railway.app/}")
+    @Value("${app.base-url:https://ferrecarlos.vercel.app/}")
     private String baseUrl;
 
     /**

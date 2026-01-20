@@ -82,7 +82,7 @@ public class PDFService {
         document.add(new Paragraph("FERRETERÍA CARLOS C&C")
                 .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER).setMarginTop(10));
         document.add(new Paragraph(
-                "RUC: 20612345678\nCALLE LAS NORMAS 123 - LIMA\nTelf: 981 182 158\nWeb: https://ferrecarlos.up.railway.app/")
+                "RUC: 20612345678\nCALLE LAS NORMAS 123 - LIMA\nTelf: 981 182 158\nWeb: https://ferrecarlos.vercel.app/")
                 .setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFontColor(COLOR_GRIS_OSCURO)
                 .setMarginTop(-5));
 
@@ -182,7 +182,7 @@ public class PDFService {
             }
         }
 
-        document.add(new Paragraph("\nRepresentación impresa de la Venta Electrónica\nConsulte en www.ferrecarlos.com")
+        document.add(new Paragraph("\nRepresentación impresa de la Venta Electrónica\nConsulte en https://ferrecarlos.vercel.app/")
                 .setFontSize(8).setTextAlignment(TextAlignment.CENTER).setFontColor(COLOR_GRIS_OSCURO)
                 .setMarginTop(10));
     }

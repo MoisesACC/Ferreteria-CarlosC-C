@@ -283,7 +283,7 @@ export const ProductDetails: React.FC = () => {
                 .thumb-item img { width: 100%; height: 100%; object-fit: contain; }
                 .main-display { flex: 1; background: #fff; border-radius: 24px; border: 1px solid #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 550px; }
                 .main-image-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-                .main-image-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+                .main-image-container img { max-width: 100%; max-height: 130%; object-fit: contain; }
 
                 /* Content */
                 .content-sticky { position: sticky; top: 100px; }
