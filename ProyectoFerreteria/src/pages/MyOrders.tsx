@@ -14,9 +14,38 @@ export const MyOrders: React.FC = () => {
     const [selectedOrder, setSelectedOrder] = useState<Pedido | null>(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedCompForView, setSelectedCompForView] = useState<Comprobante | null>(null);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [loadingPdf, setLoadingPdf] = useState(false);
     const navigate = useNavigate();
 
-    const formatDate = (dateStr: string) => {
+    // ... (rest of standard hooks)
+
+    useEffect(() => {
+        if (selectedCompForView) {
+            setLoadingPdf(true);
+            comprobanteService.verPDF(selectedCompForView.id)
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    setPdfUrl(url);
+                })
+                .catch(err => {
+                    console.error("Error loading PDF", err);
+                    setPdfUrl(null);
+                })
+                .finally(() => setLoadingPdf(false));
+        } else {
+            if (pdfUrl) {
+                window.URL.revokeObjectURL(pdfUrl);
+                setPdfUrl(null);
+            }
+        }
+    }, [selectedCompForView]);
+
+    const formatDate = (dateStr: string) => { //... rest of file
+        //...
+        // ... (skip to render)
+        // ...
+
         if (!dateStr) return '';
         const [year, month, day] = dateStr.split('-').map(Number);
         return new Date(year, month - 1, day).toLocaleDateString('es-PE', {
@@ -303,12 +332,25 @@ export const MyOrders: React.FC = () => {
                             </div>
                         </div>
 
-                        <div style={{ flex: 1, display: 'flex', backgroundColor: '#f0f0f0' }}>
-                            <iframe
-                                src={comprobanteService.obtenerUrlPDF(selectedCompForView.id)}
-                                style={{ width: '100%', height: '100%', border: 'none' }}
-                                title="Factura Digital"
-                            />
+                        <div style={{ flex: 1, display: 'flex', backgroundColor: '#f0f0f0', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                            {loadingPdf ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                    <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(0,0,0,0.1)', borderTop: '4px solid var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                                    <p style={{ color: 'var(--text-muted)' }}>Cargando documento...</p>
+                                    <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                                </div>
+                            ) : pdfUrl ? (
+                                <iframe
+                                    src={pdfUrl}
+                                    style={{ width: '100%', height: '100%', border: 'none' }}
+                                    title="Factura Digital"
+                                />
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                                    <p>No se pudo visualizar el documento.</p>
+                                    <button onClick={() => selectedCompForView && handleDescargarPDF(selectedCompForView)} className="btn-primary" style={{ marginTop: '1rem' }}>Descargar Manualmente</button>
+                                </div>
+                            )}
                         </div>
 
                         <div className="comprobante-footer" style={{ padding: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>

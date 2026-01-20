@@ -63,6 +63,16 @@ export const comprobanteService = {
     },
 
     /**
+     * Obtiene el Blob del PDF para previsualización
+     */
+    verPDF: async (id: string): Promise<Blob> => {
+        const response = await api.get(`/comprobantes/${id}/ver-pdf`, {
+            responseType: 'blob'
+        });
+        return response.data;
+    },
+
+    /**
      * Obtiene la URL para visualizar el PDF
      */
     obtenerUrlPDF: (id: string): string => {

@@ -99,10 +99,33 @@ export const AdminPanel: React.FC = () => {
     const [isGenerarComprobanteModalOpen, setIsGenerarComprobanteModalOpen] = useState(false);
     const [selectedOrderForBilling, setSelectedOrderForBilling] = useState<string | null>(null);
     const [selectedComprobanteForView, setSelectedComprobanteForView] = useState<Comprobante | null>(null);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [loadingPdf, setLoadingPdf] = useState(false);
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (selectedComprobanteForView) {
+            setLoadingPdf(true);
+            comprobanteService.verPDF(selectedComprobanteForView.id)
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    setPdfUrl(url);
+                })
+                .catch(err => {
+                    console.error("Error loading PDF", err);
+                    setPdfUrl(null);
+                })
+                .finally(() => setLoadingPdf(false));
+        } else {
+            if (pdfUrl) {
+                window.URL.revokeObjectURL(pdfUrl);
+                setPdfUrl(null);
+            }
+        }
+    }, [selectedComprobanteForView]);
 
     const fetchData = async () => {
         try {
@@ -1647,16 +1670,34 @@ export const AdminPanel: React.FC = () => {
                                     </button>
                                 </div>
                             </div>
-                            <iframe
-                                src={comprobanteService.obtenerUrlPDF(selectedComprobanteForView.id)}
-                                style={{
-                                    width: '100%',
-                                    height: 'calc(90vh - 70px)',
-                                    border: 'none',
-                                    backgroundColor: '#fff'
-                                }}
-                                title="Vista del comprobante"
-                            />
+                            <div style={{
+                                width: '100%',
+                                height: 'calc(90vh - 70px)',
+                                backgroundColor: '#f0f0f0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                position: 'relative'
+                            }}>
+                                {loadingPdf ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                        <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(0,0,0,0.1)', borderTop: '4px solid var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                                        <p style={{ color: 'var(--text-muted)' }}>Cargando documento...</p>
+                                        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                                    </div>
+                                ) : pdfUrl ? (
+                                    <iframe
+                                        src={pdfUrl}
+                                        style={{ width: '100%', height: '100%', border: 'none' }}
+                                        title="Vista del comprobante"
+                                    />
+                                ) : (
+                                    <div style={{ textAlign: 'center', padding: '2rem' }}>
+                                        <p style={{ color: 'var(--text-muted)' }}>No se pudo visualizar el documento.</p>
+                                        <button onClick={() => selectedComprobanteForView && handleDescargarPDF(selectedComprobanteForView)} className="btn-primary" style={{ marginTop: '1rem' }}>Descargar Manualmente</button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )
