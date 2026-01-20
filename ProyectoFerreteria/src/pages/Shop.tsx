@@ -342,7 +342,7 @@ export const Shop: React.FC = () => {
                 .layout-icon-mini.list span { width: 14px; height: 2px; }
 
                 /* Dynamic Grid Layouts */
-                .product-grid { display: grid; gap: 2rem; transition: all 0.4s ease; }
+                .product-grid { display: grid; gap: 0.7rem; transition: all 0.4s ease; }
                 .product-grid.mode-grid-2 { grid-template-columns: repeat(2, 1fr); }
                 .product-grid.mode-grid-3 { grid-template-columns: repeat(3, 1fr); }
                 .product-grid.mode-grid-4 { grid-template-columns: repeat(4, 1fr); }
@@ -362,6 +362,10 @@ export const Shop: React.FC = () => {
                     .shop-sidebar { display: none; }
                     .sorting-bar { flex-direction: column; gap: 1rem; padding: 1.2rem; align-items: flex-start; }
                     .sorting-bar-right { width: 100%; justify-content: space-between; }
+                    
+                    /* Force 2 columns on mobile */
+                    .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.8rem; }
+                    .desktop-only { display: none; }
                 }
             `}</style>
         </div>

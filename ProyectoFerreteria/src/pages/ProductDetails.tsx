@@ -181,7 +181,24 @@ export const ProductDetails: React.FC = () => {
                             </div>
 
                             <div className="short-desc">
-                                <p>{product.descripcion || `Herramienta profesional ${product.marca} diseñada para ofrecer el máximo rendimiento en tus proyectos mas exigentes.`}</p>
+                                <p>
+                                    {(product.descripcion && product.descripcion.length > 150) ? (
+                                        <>
+                                            {product.descripcion.substring(0, 150)}...
+                                            <button
+                                                className="see-more-link"
+                                                onClick={() => {
+                                                    document.getElementById('details-anchor')?.scrollIntoView({ behavior: 'smooth' });
+                                                    setSelectedTab('detail');
+                                                }}
+                                            >
+                                                Ver más
+                                            </button>
+                                        </>
+                                    ) : (
+                                        product.descripcion || `Herramienta profesional ${product.marca} diseñada para ofrecer el máximo rendimiento en tus proyectos mas exigentes.`
+                                    )}
+                                </p>
                             </div>
 
                             <div className="buying-actions">
@@ -211,7 +228,7 @@ export const ProductDetails: React.FC = () => {
                 </main>
 
                 {/* Tabs / Detailed Specs */}
-                <section className="details-tabs">
+                <section id="details-anchor" className="details-tabs">
                     <div className="tabs-nav">
                         {['Detalles', 'Características'].map(t => (
                             <button
@@ -310,6 +327,8 @@ export const ProductDetails: React.FC = () => {
                 .save-badge { background: #e6fffa; color: #008080; font-size: 0.8rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
 
                 .short-desc { margin-bottom: 3rem; color: #666; line-height: 1.6; font-size: 1.05rem; }
+                .see-more-link { background: none; border: none; padding: 0; margin-left: 6px; color: var(--primary); font-weight: 800; cursor: pointer; text-decoration: underline; font-size: 0.95rem; }
+                .see-more-link:hover { color: #000; }
 
                 .buying-actions { display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 3rem; }
                 .quantity-control .label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #999; margin-bottom: 8px; }
