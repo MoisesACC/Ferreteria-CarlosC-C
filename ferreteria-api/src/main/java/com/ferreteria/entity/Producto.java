@@ -31,12 +31,28 @@ public class Producto {
     private Integer stock;
     private String imagen; // Principal image
 
-    // @ElementCollection
-    // @CollectionTable(name = "producto_imagenes", joinColumns = @JoinColumn(name =
-    // "producto_id"))
-    // @Column(name = "imagen_url")
-    @Transient // Marcamos como Transient para que Hibernate la ignore por ahora
-    private List<String> imagenesAdicionales;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "producto_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private List<ProductoImagen> imagenes = new java.util.ArrayList<>();
+
+    @Transient
+    public List<String> getImagenesAdicionales() {
+        if (imagenes == null)
+            return new java.util.ArrayList<>();
+        return imagenes.stream().map(ProductoImagen::getUrl).collect(java.util.stream.Collectors.toList());
+    }
+
+    public void setImagenesAdicionales(List<String> urls) {
+        if (this.imagenes == null)
+            this.imagenes = new java.util.ArrayList<>();
+        this.imagenes.clear();
+        if (urls != null) {
+            this.imagenes.addAll(urls.stream()
+                    .map(url -> ProductoImagen.builder().url(url).build())
+                    .collect(java.util.stream.Collectors.toList()));
+        }
+    }
 
     private Boolean esOferta;
     private Boolean esNuevo;
