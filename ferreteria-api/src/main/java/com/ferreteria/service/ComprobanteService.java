@@ -30,6 +30,7 @@ public class ComprobanteService {
     private final com.ferreteria.repository.ProductoRepository productoRepository;
     private final PDFService pdfService;
     private final EmailService emailService;
+    private final com.ferreteria.repository.UsuarioRepository usuarioRepository;
 
     @Value("${app.base-url:https://ferrecarlos.vercel.app/}")
     private String baseUrl;
@@ -187,17 +188,37 @@ public class ComprobanteService {
             System.out.println("🔍 ADMIN_DEBUG: Iniciando proceso de envío de correo para pedido: " + pedido.getId());
 
             if (pedido.getUsuario() != null) {
-                System.out.println("👤 ADMIN_DEBUG: Usuario encontrado. ID: " + pedido.getUsuario().getId()
-                        + " - Email: " + pedido.getUsuario().getEmail());
+                // INTENTO DE RECUPERACIÓN DE USUARIO REAL (Fix para Email Null por Lazy
+                // Loading)
+                String emailDestino = pedido.getUsuario().getEmail();
+                String usuarioId = pedido.getUsuario().getId();
 
-                if (pedido.getUsuario().getEmail() != null && !pedido.getUsuario().getEmail().isEmpty()) {
+                if (emailDestino == null || emailDestino.isEmpty()) {
+                    System.out.println(
+                            "⚠️ ADMIN_DEBUG: Email en objeto Pedido es NULL. Buscando usuario completo en BD...");
+                    com.ferreteria.entity.Usuario usuarioFull = usuarioRepository.findById(usuarioId).orElse(null);
+                    if (usuarioFull != null) {
+                        emailDestino = usuarioFull.getEmail();
+                        System.out.println("✅ ADMIN_DEBUG: Usuario recuperado de BD. Email: " + emailDestino);
+                        // Actualizar el objeto pedido en memoria por si acaso
+                        pedido.getUsuario().setEmail(emailDestino);
+                        pedido.getUsuario().setNombre(usuarioFull.getNombre());
+                    }
+                }
+
+                if (emailDestino != null && !emailDestino.isEmpty()) {
                     java.util.Map<String, Object> model = new java.util.HashMap<>();
-                    model.put("nombreCliente", comprobante.getClienteNombre());
+                    // Usar nombre del usuario si clienteNombre es genérico
+                    String nombreFinal = comprobante.getClienteNombre();
+                    if (nombreFinal == null || nombreFinal.isEmpty() || nombreFinal.contains("Cliente General")) {
+                        nombreFinal = pedido.getUsuario().getNombre();
+                    }
+
+                    model.put("nombreCliente", nombreFinal);
                     model.put("nroComprobante", comprobante.getNumeroComprobante());
                     model.put("totalCompra", comprobante.getTotal());
                     model.put("fecha", comprobante.getFechaEmision().toLocalDate().toString());
 
-                    String emailDestino = pedido.getUsuario().getEmail();
                     String asunto = "Confirmación de Compra - " + comprobante.getNumeroComprobante();
                     String nombrePdf = "Comprobante-" + comprobante.getNumeroComprobante() + ".pdf";
 
@@ -206,7 +227,8 @@ public class ComprobanteService {
                             comprobante.getPdfData(),
                             nombrePdf);
                 } else {
-                    System.err.println("❌ ADMIN_DEBUG: El campo EMAIL del usuario es NULL o vacío.");
+                    System.err.println("❌ ADMIN_DEBUG: Imposible enviar. El usuario ID " + usuarioId
+                            + " no tiene email registrado en BD.");
                 }
             } else {
                 System.err.println("❌ ADMIN_DEBUG: El pedido NO tiene un objeto Usuario asociado (Guest checkout?).");
