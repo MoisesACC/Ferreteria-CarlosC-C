@@ -184,23 +184,36 @@ public class ComprobanteService {
     private void enviarCorreoConfirmacion(Comprobante comprobante) {
         try {
             Pedido pedido = comprobante.getPedido();
-            if (pedido.getUsuario() != null && pedido.getUsuario().getEmail() != null) {
-                java.util.Map<String, Object> model = new java.util.HashMap<>();
-                model.put("nombreCliente", comprobante.getClienteNombre());
-                model.put("nroComprobante", comprobante.getNumeroComprobante());
-                model.put("totalCompra", comprobante.getTotal());
-                model.put("fecha", comprobante.getFechaEmision().toLocalDate().toString());
+            System.out.println("🔍 ADMIN_DEBUG: Iniciando proceso de envío de correo para pedido: " + pedido.getId());
 
-                String emailDestino = pedido.getUsuario().getEmail();
-                String asunto = "Confirmación de Compra - " + comprobante.getNumeroComprobante();
-                String nombrePdf = "Comprobante-" + comprobante.getNumeroComprobante() + ".pdf";
+            if (pedido.getUsuario() != null) {
+                System.out.println("👤 ADMIN_DEBUG: Usuario encontrado. ID: " + pedido.getUsuario().getId()
+                        + " - Email: " + pedido.getUsuario().getEmail());
 
-                emailService.sendHtmlEmail(emailDestino, asunto, "order-confirmation", model, comprobante.getPdfData(),
-                        nombrePdf);
+                if (pedido.getUsuario().getEmail() != null && !pedido.getUsuario().getEmail().isEmpty()) {
+                    java.util.Map<String, Object> model = new java.util.HashMap<>();
+                    model.put("nombreCliente", comprobante.getClienteNombre());
+                    model.put("nroComprobante", comprobante.getNumeroComprobante());
+                    model.put("totalCompra", comprobante.getTotal());
+                    model.put("fecha", comprobante.getFechaEmision().toLocalDate().toString());
+
+                    String emailDestino = pedido.getUsuario().getEmail();
+                    String asunto = "Confirmación de Compra - " + comprobante.getNumeroComprobante();
+                    String nombrePdf = "Comprobante-" + comprobante.getNumeroComprobante() + ".pdf";
+
+                    System.out.println("🚀 ADMIN_DEBUG: Enviando email a: " + emailDestino);
+                    emailService.sendHtmlEmail(emailDestino, asunto, "order-confirmation", model,
+                            comprobante.getPdfData(),
+                            nombrePdf);
+                } else {
+                    System.err.println("❌ ADMIN_DEBUG: El campo EMAIL del usuario es NULL o vacío.");
+                }
+            } else {
+                System.err.println("❌ ADMIN_DEBUG: El pedido NO tiene un objeto Usuario asociado (Guest checkout?).");
             }
         } catch (Exception e) {
-            // No detenemos el proceso si falla el correo, solo lo logueamos
-            System.err.println("Error al enviar correo de confirmación: " + e.getMessage());
+            System.err.println("❌ ADMIN_DEBUG: Excepción fatal en enviarCorreoConfirmacion: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
