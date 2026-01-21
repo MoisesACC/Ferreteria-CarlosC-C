@@ -339,7 +339,7 @@ export const Checkout: React.FC = () => {
                                 <button onClick={() => navigate('/productos')} className="btn-primary" style={{ width: '100%', height: '55px', color: '#000', fontSize: '1.1rem' }}>
                                     Seguir Comprando
                                 </button>
-                                <button onClick={() => navigate('/profile')} style={{ background: 'transparent', color: 'var(--text-muted)', border: 'none', fontWeight: '600', padding: '10px' }}>
+                                <button onClick={() => navigate('/mis-pedidos')} style={{ background: 'transparent', color: 'var(--text-muted)', border: 'none', fontWeight: '600', padding: '10px' }}>
                                     Ver mis pedidos recientes
                                 </button>
                             </div>
