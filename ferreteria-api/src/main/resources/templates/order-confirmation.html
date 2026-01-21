@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background-color: #fbbf24; /* Color amarillo de Carlos C&C */ color: #000; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        .content { padding: 30px; color: #333; }
+        .welcome-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
+        .order-details { margin: 20px 0; border: 1px solid #eee; border-radius: 6px; padding: 15px; background: #fafafa; }
+        .order-details h3 { margin-top: 0; color: #555; border-bottom: 2px solid #fbbf24; padding-bottom: 5px; display: inline-block; }
+        .footer { background-color: #333; color: #fff; text-align: center; padding: 15px; font-size: 12px; }
+        .btn { display: inline-block; background-color: #000; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡Gracias por tu compra!</h1>
+        </div>
+        <div class="content">
+            <p class="welcome-text">Hola <strong th:text="${nombreCliente}">Cliente</strong>,</p>
+            <p class="welcome-text">Tu pedido ha sido procesado exitosamente. Agradecemos tu confianza en <strong>Carlos C&C</strong>.</p>
+            
+            <div class="order-details">
+                <h3>Detalle del Pedido</h3>
+                <p><strong>Nro. Compra:</strong> <span th:text="${nroComprobante}">#0000</span></p>
+                <p><strong>Total Pagado:</strong> S/. <span th:text="${totalCompra}">0.00</span></p>
+                <p><strong>Fecha:</strong> <span th:text="${fecha}">01/01/2026</span></p>
+            </div>
+
+            <p>Adjunto a este correo encontrarás tu <strong>Comprobante Electrónico (PDF)</strong> válido.</p>
+
+            <a href="https://ferreteria-carlos-cc.vercel.app/profile" class="btn">Ver Mis Pedidos</a>
+        </div>
+        <div class="footer">
+            <p>© 2026 Carlos C&C - Herramientas y Servicios.</p>
+            <p>Este es un correo automático, por favor no responder.</p>
+        </div>
+    </div>
+</body>
+</html>

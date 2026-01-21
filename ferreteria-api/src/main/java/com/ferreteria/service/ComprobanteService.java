@@ -29,6 +29,7 @@ public class ComprobanteService {
     private final PedidoRepository pedidoRepository;
     private final com.ferreteria.repository.ProductoRepository productoRepository;
     private final PDFService pdfService;
+    private final EmailService emailService;
 
     @Value("${app.base-url:https://ferrecarlos.vercel.app/}")
     private String baseUrl;
@@ -100,6 +101,9 @@ public class ComprobanteService {
         // Guardar con PDF y URL
         comprobante = comprobanteRepository.save(comprobante);
 
+        // Enviar Correo con PDF adjunto
+        enviarCorreoConfirmacion(comprobante);
+
         return convertToDTO(comprobante);
     }
 
@@ -168,7 +172,36 @@ public class ComprobanteService {
         comprobante.setQrCodeUrl(url);
         comprobante.setPdfData(pdfService.generateComprobantePDF(comprobante));
 
-        comprobanteRepository.save(comprobante);
+        comprobante = comprobanteRepository.save(comprobante);
+
+        // Enviar Correo Automático
+        enviarCorreoConfirmacion(comprobante);
+    }
+
+    /**
+     * Prepara los datos y envía el correo de confirmación
+     */
+    private void enviarCorreoConfirmacion(Comprobante comprobante) {
+        try {
+            Pedido pedido = comprobante.getPedido();
+            if (pedido.getUsuario() != null && pedido.getUsuario().getEmail() != null) {
+                java.util.Map<String, Object> model = new java.util.HashMap<>();
+                model.put("nombreCliente", comprobante.getClienteNombre());
+                model.put("nroComprobante", comprobante.getNumeroComprobante());
+                model.put("totalCompra", comprobante.getTotal());
+                model.put("fecha", comprobante.getFechaEmision().toLocalDate().toString());
+
+                String emailDestino = pedido.getUsuario().getEmail();
+                String asunto = "Confirmación de Compra - " + comprobante.getNumeroComprobante();
+                String nombrePdf = "Comprobante-" + comprobante.getNumeroComprobante() + ".pdf";
+
+                emailService.sendHtmlEmail(emailDestino, asunto, "order-confirmation", model, comprobante.getPdfData(),
+                        nombrePdf);
+            }
+        } catch (Exception e) {
+            // No detenemos el proceso si falla el correo, solo lo logueamos
+            System.err.println("Error al enviar correo de confirmación: " + e.getMessage());
+        }
     }
 
     /**
