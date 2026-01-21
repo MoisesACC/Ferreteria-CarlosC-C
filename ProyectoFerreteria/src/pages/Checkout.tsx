@@ -9,7 +9,8 @@ import {
     ChevronLeft,
     CheckCircle2,
     Loader2,
-    AlertCircle
+    AlertCircle,
+    Mail
 } from 'lucide-react';
 import api from '../api/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -283,18 +284,39 @@ export const Checkout: React.FC = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}
                         >
-                            <div style={{ marginBottom: '2rem' }}>
-                                <div style={{
-                                    width: '100px', height: '100px', borderRadius: '50%', backgroundColor: 'rgba(52, 199, 89, 0.1)',
-                                    color: '#34C759', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem'
-                                }}>
-                                    <CheckCircle2 size={60} />
-                                </div>
-                                <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>¡Pago Exitoso!</h2>
+                            <div style={{ marginBottom: '2.5rem' }}>
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                                    style={{
+                                        width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#34C759',
+                                        color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem',
+                                        boxShadow: '0 10px 25px rgba(52, 199, 89, 0.4)'
+                                    }}
+                                >
+                                    <CheckCircle2 size={50} strokeWidth={3} />
+                                </motion.div>
+                                <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: '800' }}>¡Gracias por tu compra!</h2>
                                 <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.6' }}>
-                                    Tu pedido <strong>#{orderId?.slice(0, 8)}</strong> ha sido procesado correctamente. <br />
-                                    Recibirás un correo de confirmación en breve.
+                                    Tu pedido <strong>#{orderId?.slice(0, 8)}</strong> ha sido procesado exitosamente.
                                 </p>
+                            </div>
+
+                            <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '2.5rem', textAlign: 'left', border: '1px solid rgba(255, 195, 0, 0.2)' }}>
+                                <div style={{ display: 'flex', alignItems: 'start', gap: '1rem' }}>
+                                    <div style={{ backgroundColor: 'rgba(255, 195, 0, 0.1)', padding: '12px', borderRadius: '12px', color: 'var(--primary)' }}>
+                                        <Mail size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Comprobante Enviado</h4>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                            Hemos enviado el detalle de tu compra y tu comprobante electrónico (PDF) a:
+                                            <br />
+                                            <strong style={{ color: 'var(--primary)', fontSize: '1.05rem' }}>{user?.email || 'tu correo registrado'}</strong>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem', textAlign: 'left' }}>
@@ -304,18 +326,22 @@ export const Checkout: React.FC = () => {
                                     <strong style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>S/. {total.toFixed(2)}</strong>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                    <span>Método:</span>
-                                    <span>Stripe Test (Visa-4242)</span>
+                                    <span>Método de Pago:</span>
+                                    <span>Tarjeta de Crédito (Visa-4242)</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Estado:</span>
+                                    <span>Estado del Pedido:</span>
                                     <span style={{ color: '#34C759', fontWeight: '800' }}>CONFIRMADO</span>
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button onClick={() => navigate('/productos')} className="btn-primary" style={{ flex: 1, color: '#000' }}>Seguir Comprando</button>
-                                <button onClick={() => navigate('/')} style={{ flex: 1, background: 'var(--bg-dark)', color: 'var(--text-main)', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: '700' }}>Volver al Inicio</button>
+                            <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+                                <button onClick={() => navigate('/productos')} className="btn-primary" style={{ width: '100%', height: '55px', color: '#000', fontSize: '1.1rem' }}>
+                                    Seguir Comprando
+                                </button>
+                                <button onClick={() => navigate('/profile')} style={{ background: 'transparent', color: 'var(--text-muted)', border: 'none', fontWeight: '600', padding: '10px' }}>
+                                    Ver mis pedidos recientes
+                                </button>
                             </div>
                         </motion.div>
                     )}
