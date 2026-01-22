@@ -9,8 +9,7 @@ import {
     ChevronLeft,
     CheckCircle2,
     Loader2,
-    AlertCircle,
-    Mail
+    AlertCircle
 } from 'lucide-react';
 import api from '../api/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -95,7 +94,7 @@ export const Checkout: React.FC = () => {
                     ].map(s => (
                         <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', opacity: step >= s.n ? 1 : 0.4 }}>
                             <div style={{
-                                width: '32px', height: '32px', borderRadius: '50%', border: `2px solid ${step >= s.n ? 'var(--primary)' : 'var(--text-muted)'}`,
+                                width: '32px', height: '32px', borderRadius: '50%', border: `2px solid ${step >= s.n ? 'var(--primary)' : 'var(--text-muted)'} `,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: '800',
                                 backgroundColor: step > s.n ? 'var(--primary)' : 'transparent',
                                 color: step > s.n ? '#000' : 'inherit'
@@ -309,7 +308,7 @@ export const Checkout: React.FC = () => {
                                         <CheckCircle2 size={24} />
                                     </div>
                                     <div>
-                                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Pedido Confirmado</h4>
+                                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Pedido Confirmado.</h4>
                                         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5' }}>
                                             Estamos preparando tu pedido. Puedes ver el estado y descargar tu comprobante desde la sección:
                                             <br />
