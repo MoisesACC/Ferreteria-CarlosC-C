@@ -16,22 +16,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-  mail:
-    host: smtp.googlemail.com
-    port: 465
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
-    protocol: smtps
-    properties:
-      mail:
-        debug: true
-        smtps:
-          auth: true
-          ssl.enable: true
-          ssl.trust: smtp.gmail.com
-          connectiontimeout: 15000
-          timeout: 15000
-          writetimeout: 15000
 
 springdoc:
   api-docs:

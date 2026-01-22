@@ -306,14 +306,14 @@ export const Checkout: React.FC = () => {
                             <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '2.5rem', textAlign: 'left', border: '1px solid rgba(255, 195, 0, 0.2)' }}>
                                 <div style={{ display: 'flex', alignItems: 'start', gap: '1rem' }}>
                                     <div style={{ backgroundColor: 'rgba(255, 195, 0, 0.1)', padding: '12px', borderRadius: '12px', color: 'var(--primary)' }}>
-                                        <Mail size={24} />
+                                        <CheckCircle2 size={24} />
                                     </div>
                                     <div>
-                                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Comprobante Enviado</h4>
+                                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Pedido Confirmado</h4>
                                         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5' }}>
-                                            Hemos enviado el detalle de tu compra y tu comprobante electrónico (PDF) a:
+                                            Estamos preparando tu pedido. Puedes ver el estado y descargar tu comprobante desde la sección:
                                             <br />
-                                            <strong style={{ color: 'var(--primary)', fontSize: '1.05rem' }}>{user?.email || 'tu correo registrado'}</strong>
+                                            <strong style={{ color: 'var(--primary)', fontSize: '1.05rem' }}>Mis Pedidos</strong>
                                         </p>
                                     </div>
                                 </div>
