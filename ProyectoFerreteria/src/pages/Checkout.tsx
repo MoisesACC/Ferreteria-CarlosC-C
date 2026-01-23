@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import api from '../api/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import '../styles/Checkout.css';
 
 export const Checkout: React.FC = () => {
     const { cart, total, clearCart } = useCart();
@@ -38,9 +39,9 @@ export const Checkout: React.FC = () => {
 
     if (cart.length === 0 && step !== 3) {
         return (
-            <div style={{ padding: '8rem 5%', textAlign: 'center' }}>
-                <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Tu carrito está vacío</h2>
-                <Link to="/productos" className="btn-primary" style={{ color: '#000' }}>Seguir comprando</Link>
+            <div className="empty-cart-container">
+                <h2 className="empty-cart-title">Tu carrito está vacío</h2>
+                <Link to="/productos" className="btn-primary btn-continue-shopping">Seguir comprando</Link>
             </div>
         );
     }
@@ -82,26 +83,21 @@ export const Checkout: React.FC = () => {
     };
 
     return (
-        <div style={{ backgroundColor: 'var(--bg-main)', minHeight: '100vh', padding: '4rem 5%' }}>
-            <div className="container" style={{ maxWidth: '1100px' }}>
+        <div className="checkout-page">
+            <div className="container checkout-container">
 
                 {/* Steps Indicator */}
-                <div className="steps-indicator" style={{ display: 'flex', justifyContent: 'center', marginBottom: '4rem', gap: '3rem' }}>
+                <div className="steps-indicator">
                     {[
                         { n: 1, l: 'Envío' },
                         { n: 2, l: 'Pago' },
                         { n: 3, l: 'Confirmación' }
                     ].map(s => (
-                        <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', opacity: step >= s.n ? 1 : 0.4 }}>
-                            <div style={{
-                                width: '32px', height: '32px', borderRadius: '50%', border: `2px solid ${step >= s.n ? 'var(--primary)' : 'var(--text-muted)'} `,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: '800',
-                                backgroundColor: step > s.n ? 'var(--primary)' : 'transparent',
-                                color: step > s.n ? '#000' : 'inherit'
-                            }}>
+                        <div key={s.n} className={`step-item ${step >= s.n ? 'active' : 'inactive'}`}>
+                            <div className={`step-circle ${step > s.n ? 'done' : (step === s.n ? 'current' : '')}`}>
                                 {step > s.n ? <CheckCircle2 size={18} /> : s.n}
                             </div>
-                            <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>{s.l}</span>
+                            <span className="step-label">{s.l}</span>
                         </div>
                     ))}
                 </div>
@@ -112,49 +108,30 @@ export const Checkout: React.FC = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            style={{
-                                position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                                backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                                backdropFilter: 'blur(10px)',
-                                zIndex: 9999,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '2rem'
-                            }}
+                            className="loading-overlay"
                         >
-                            <div style={{ position: 'relative', width: '120px', height: '120px' }}>
+                            <div className="loader-shield-wrapper">
                                 <motion.div
                                     animate={{ rotate: 360 }}
                                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                    style={{
-                                        width: '100%', height: '100%',
-                                        borderRadius: '50%',
-                                        border: '4px solid rgba(255, 195, 0, 0.1)',
-                                        borderTopColor: 'var(--primary)'
-                                    }}
+                                    className="loader-ring"
                                 />
                                 <motion.div
                                     animate={{ scale: [1, 1.2, 1] }}
                                     transition={{ duration: 1.5, repeat: Infinity }}
-                                    style={{
-                                        position: 'absolute', top: '50%', left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        color: 'var(--primary)'
-                                    }}
+                                    className="loader-icon-center"
                                 >
                                     <ShieldCheck size={50} />
                                 </motion.div>
                             </div>
-                            <div style={{ textAlign: 'center' }}>
-                                <h3 style={{ color: 'white', fontSize: '1.8rem', marginBottom: '0.5rem' }}>Procesando Tu Compra</h3>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Estamos verificando tu pago y generando tu comprobante electrónico...</p>
+                            <div className="loader-text">
+                                <h3>Procesando Tu Compra</h3>
+                                <p>Estamos verificando tu pago y generando tu comprobante electrónico...</p>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)' }} />
-                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)' }} />
-                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary)' }} />
+                            <div className="loader-dots">
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} className="dot" />
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }} className="dot" />
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }} className="dot" />
                             </div>
                         </motion.div>
                     )}
@@ -170,18 +147,18 @@ export const Checkout: React.FC = () => {
                             className="checkout-layout"
                         >
                             <div className="glass-card" style={{ padding: '3rem' }}>
-                                <h2 className="checkout-header-title" style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}>📍 Información de Envío</h2>
+                                <h2 className="checkout-header-title">📍 Información de Envío</h2>
                                 <form onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
-                                    <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                                        <div style={{ gridColumn: 'span 2' }}>
+                                    <div className="form-grid">
+                                        <div className="form-group-full">
                                             <label className="form-label">Nombre del Cliente (Para la factura/boleta) *</label>
                                             <input required value={form.clienteNombre} onChange={e => setForm({ ...form, clienteNombre: e.target.value })} placeholder="Juan Pérez" />
                                         </div>
-                                        <div style={{ gridColumn: 'span 2' }}>
+                                        <div className="form-group-full">
                                             <label className="form-label">DNI / RUC *</label>
                                             <input required value={form.clienteDocumento} onChange={e => setForm({ ...form, clienteDocumento: e.target.value })} placeholder="12345678 o 20123456789" />
                                         </div>
-                                        <div style={{ gridColumn: 'span 2' }}>
+                                        <div className="form-group-full">
                                             <label className="form-label">Dirección de Entrega *</label>
                                             <input required value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} placeholder="Av. Las Malvinas 123" />
                                         </div>
@@ -193,8 +170,8 @@ export const Checkout: React.FC = () => {
                                             <label className="form-label">Teléfono de Contacto</label>
                                             <input required value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} placeholder="999 999 999" />
                                         </div>
-                                        <div style={{ gridColumn: 'span 2', marginTop: '2rem' }}>
-                                            <button type="submit" className="btn-primary" style={{ width: '100%', height: '60px', fontSize: '1.1rem' }}>
+                                        <div className="btn-submit-wrapper">
+                                            <button type="submit" className="btn-primary btn-full-width">
                                                 Continuar al Pago
                                             </button>
                                         </div>
@@ -214,8 +191,8 @@ export const Checkout: React.FC = () => {
                             className="checkout-layout"
                         >
                             <div className="glass-card" style={{ padding: '3rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-                                    <h2 className="checkout-header-title" style={{ fontSize: '1.8rem' }}>💳 Pago con Tarjeta</h2>
+                                <div className="checkout-section-header">
+                                    <h2 className="checkout-header-title">💳 Pago con Tarjeta</h2>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="20" alt="Visa" />
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="20" alt="Mastercard" />
@@ -223,52 +200,52 @@ export const Checkout: React.FC = () => {
                                 </div>
 
                                 <form onSubmit={handleProcessPayment}>
-                                    <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border-color)', marginBottom: '2rem' }}>
+                                    <div className="credit-card-box">
                                         <div style={{ marginBottom: '1.5rem' }}>
                                             <label className="form-label">Nombre en la tarjeta</label>
-                                            <div style={{ position: 'relative' }}>
+                                            <div className="form-input-wrapper">
                                                 <input required value={form.tarjetaNombre} onChange={e => setForm({ ...form, tarjetaNombre: e.target.value })} />
-                                                <CreditCard style={{ position: 'absolute', right: '15px', top: '12px', opacity: 0.3 }} size={20} />
+                                                <CreditCard className="form-icon" size={20} />
                                             </div>
                                         </div>
                                         <div style={{ marginBottom: '1.5rem' }}>
                                             <label className="form-label">Número de Tarjeta (Stripe Test)</label>
                                             <input required value={form.tarjetaNumero} readOnly style={{ letterSpacing: '2px' }} />
                                         </div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                                        <div className="card-row-2col">
                                             <div>
                                                 <label className="form-label">Fecha Exp.</label>
                                                 <input required value={form.exp} readOnly />
                                             </div>
                                             <div>
                                                 <label className="form-label">CVC / CVV</label>
-                                                <div style={{ position: 'relative' }}>
+                                                <div className="form-input-wrapper">
                                                     <input required value={form.cvv} readOnly />
-                                                    <Lock style={{ position: 'absolute', right: '15px', top: '12px', opacity: 0.3 }} size={18} />
+                                                    <Lock className="form-icon" size={18} />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {error && (
-                                        <div style={{ backgroundColor: 'rgba(255, 59, 48, 0.1)', color: '#FF3B30', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                                        <div className="error-message">
                                             <AlertCircle size={20} />
-                                            <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>{error}</span>
+                                            <span className="error-text">{error}</span>
                                         </div>
                                     )}
 
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <button disabled={loading} type="submit" className="btn-primary" style={{ width: '100%', height: '60px', fontSize: '1.1rem', gap: '1rem' }}>
+                                    <div className="payment-actions">
+                                        <button disabled={loading} type="submit" className="btn-primary btn-full-width btn-payment-submit">
                                             {loading ? <Loader2 className="spinning" /> : <ShieldCheck />}
                                             {loading ? 'Procesando Pago...' : `Pagar S/. ${total.toFixed(2)}`}
                                         </button>
-                                        <button type="button" onClick={() => setStep(1)} style={{ background: 'transparent', color: 'var(--text-muted)', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                        <button type="button" onClick={() => setStep(1)} className="btn-back">
                                             <ChevronLeft size={18} /> Regresar a envío
                                         </button>
                                     </div>
                                 </form>
 
-                                <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2rem' }}>
+                                <p className="secure-badge">
                                     Pagos encriptados por <strong>Stripe Secure 🔒</strong>
                                 </p>
                             </div>
@@ -281,35 +258,31 @@ export const Checkout: React.FC = () => {
                             key="step3"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}
+                            className="success-container"
                         >
-                            <div style={{ marginBottom: '2.5rem' }}>
+                            <div className="success-header">
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                                    style={{
-                                        width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#34C759',
-                                        color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem',
-                                        boxShadow: '0 10px 25px rgba(52, 199, 89, 0.4)'
-                                    }}
+                                    className="success-icon-wrapper"
                                 >
                                     <CheckCircle2 size={50} strokeWidth={3} />
                                 </motion.div>
-                                <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: '800' }}>¡Gracias por tu compra!</h2>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.6' }}>
+                                <h2 className="success-title">¡Gracias por tu compra!</h2>
+                                <p className="success-subtitle">
                                     Tu pedido <strong>#{orderId?.slice(0, 8)}</strong> ha sido procesado exitosamente.
                                 </p>
                             </div>
 
-                            <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '2.5rem', textAlign: 'left', border: '1px solid rgba(255, 195, 0, 0.2)' }}>
-                                <div style={{ display: 'flex', alignItems: 'start', gap: '1rem' }}>
-                                    <div style={{ backgroundColor: 'rgba(255, 195, 0, 0.1)', padding: '12px', borderRadius: '12px', color: 'var(--primary)' }}>
+                            <div className="glass-card confirmation-card">
+                                <div className="conf-card-content">
+                                    <div className="conf-icon-box">
                                         <CheckCircle2 size={24} />
                                     </div>
-                                    <div>
-                                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Pedido Confirmado.</h4>
-                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                    <div className="conf-text">
+                                        <h4>Pedido Confirmado.</h4>
+                                        <p>
                                             Estamos preparando tu pedido. Puedes ver el estado y descargar tu comprobante desde la sección:
                                             <br />
                                             <strong style={{ color: 'var(--primary)', fontSize: '1.05rem' }}>Mis Pedidos</strong>
@@ -318,27 +291,27 @@ export const Checkout: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem', textAlign: 'left' }}>
-                                <h4 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>Resumen de Compra</h4>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                            <div className="glass-card summary-card-success">
+                                <h4 className="summary-header">Resumen de Compra</h4>
+                                <div className="summary-row">
                                     <span>Total Pagado:</span>
                                     <strong style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>S/. {total.toFixed(2)}</strong>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                <div className="summary-row">
                                     <span>Método de Pago:</span>
                                     <span>Tarjeta de Crédito (Visa-4242)</span>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <div className="summary-total">
                                     <span>Estado del Pedido:</span>
-                                    <span style={{ color: '#34C759', fontWeight: '800' }}>CONFIRMADO</span>
+                                    <span className="status-confirmed">CONFIRMADO</span>
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-                                <button onClick={() => navigate('/productos')} className="btn-primary" style={{ width: '100%', height: '55px', color: '#000', fontSize: '1.1rem' }}>
+                            <div className="success-actions">
+                                <button onClick={() => navigate('/productos')} className="btn-primary btn-full-width" style={{ color: '#000' }}>
                                     Seguir Comprando
                                 </button>
-                                <button onClick={() => navigate('/mis-pedidos')} style={{ background: 'transparent', color: 'var(--text-muted)', border: 'none', fontWeight: '600', padding: '10px' }}>
+                                <button onClick={() => navigate('/mis-pedidos')} className="btn-view-orders">
                                     Ver mis pedidos recientes
                                 </button>
                             </div>
@@ -346,80 +319,39 @@ export const Checkout: React.FC = () => {
                     )}
                 </AnimatePresence>
             </div>
-
-            <style>{`
-                .checkout-layout {
-                    display: grid;
-                    grid-template-columns: 1fr 380px;
-                    gap: 3rem;
-                }
-
-                @media (max-width: 992px) {
-                    .checkout-layout {
-                        grid-template-columns: 1fr;
-                        gap: 2rem;
-                    }
-                    
-                    .steps-indicator {
-                        gap: 1.5rem !important;
-                        margin-bottom: 2.5rem !important;
-                        flex-wrap: wrap;
-                    }
-
-                    .glass-card {
-                        padding: 1.5rem !important;
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .checkout-header-title {
-                        font-size: 1.5rem !important;
-                    }
-                    
-                    .form-grid {
-                        grid-template-columns: 1fr !important;
-                        gap: 1rem !important;
-                    }
-
-                    .btn-primary {
-                        height: 50px !important;
-                        font-size: 1rem !important;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
 
 const OrderSummary = ({ total, cart }: { total: number, cart: any[] }) => (
-    <div className="glass-card" style={{ height: 'fit-content', padding: '2rem' }}>
+    <div className="glass-card order-summary-card">
         <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem' }}>Resumen del pedido</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="order-summary-items">
             {cart.map(item => (
-                <div key={item.producto.id} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <div style={{ width: '50px', height: '50px', backgroundColor: '#fff', borderRadius: '8px', padding: '5px' }}>
-                        <img src={item.producto.imagen} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <div key={item.producto.id} className="cart-item-mini">
+                    <div className="cart-item-img-box">
+                        <img src={item.producto.imagen} alt="" className="cart-item-img" />
                     </div>
-                    <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '0.85rem', fontWeight: '700', lineHeight: 1.2 }}>{item.producto.nombre}</p>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cant: {item.cantidad}</p>
+                    <div className="cart-item-info">
+                        <p className="cart-item-name">{item.producto.nombre}</p>
+                        <p className="cart-item-qty">Cant: {item.cantidad}</p>
                     </div>
-                    <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>S/. {(item.producto.precio * item.cantidad).toFixed(2)}</span>
+                    <span className="cart-item-price">S/. {(item.producto.precio * item.cantidad).toFixed(2)}</span>
                 </div>
             ))}
         </div>
-        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', color: 'var(--text-muted)' }}>
+        <div className="order-summary-footer">
+            <div className="summary-row-muted">
                 <span>Subtotal</span>
                 <span>S/. {total.toFixed(2)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--text-muted)' }}>
+            <div className="summary-row-muted" style={{ marginBottom: '1rem' }}>
                 <span>Envío</span>
-                <span style={{ color: '#34C759' }}>Gratis</span>
+                <span className="text-free">Gratis</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.3rem', fontWeight: '800', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+            <div className="summary-total-large">
                 <span>Total</span>
-                <span style={{ color: 'var(--primary)' }}>S/. {total.toFixed(2)}</span>
+                <span className="text-primary">S/. {total.toFixed(2)}</span>
             </div>
         </div>
     </div>
