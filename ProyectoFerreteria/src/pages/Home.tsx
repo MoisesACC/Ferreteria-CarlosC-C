@@ -85,18 +85,18 @@ export const Home: React.FC = () => {
     }, [offers.length]);
 
     return (
-        <div className="home-container">
+        <div style={{ backgroundColor: 'var(--bg-main)', minHeight: '100vh' }}>
             {/* Promotional Banner */}
-            <div className="marquee-container">
+            <div className="marquee">
                 <div className="marquee-content">
-                    <span className="marquee-item">⚡ ENVÍOS A TODO EL PERÚ</span>
-                    <span className="marquee-item">🔒 PAGOS 100% SEGUROS</span>
-                    <span className="marquee-item">📦 ENVÍAMOS TU PEDIDO EL MISMO DÍA</span>
-                    <span className="marquee-item">📞 CONTACTANOS: 981 182 158</span>
+                    <span>⚡ ENVÍOS A TODO EL PERÚ</span>
+                    <span>🔒 PAGOS 100% SEGUROS</span>
+                    <span>📦 ENVÍAMOS TU PEDIDO EL MISMO DÍA</span>
+                    <span>📞 CONTACTANOS: 981 182 158</span>
                     {/* Repeat for continuous effect */}
-                    <span className="marquee-item">⚡ ENVÍOS A TODO EL PERÚ</span>
-                    <span className="marquee-item">🔒 PAGOS 100% SEGUROS</span>
-                    <span className="marquee-item">📦 ENVÍAMOS TU PEDIDO EL MISMO DÍA</span>
+                    <span>⚡ ENVÍOS A TODO EL PERÚ</span>
+                    <span>🔒 PAGOS 100% SEGUROS</span>
+                    <span>📦 ENVÍAMOS TU PEDIDO EL MISMO DÍA</span>
                 </div>
             </div>
 
@@ -107,7 +107,7 @@ export const Home: React.FC = () => {
             <BrandsSection />
 
             {/* Promotional Grid - Mosaic Packery style */}
-            <section className="promo-section">
+            <section style={{ padding: '6rem 0', backgroundColor: '#fff' }}>
                 <div className="container promo-grid-v2">
                     {/* Item 1: Rotomartillo (Small) */}
                     <div className="mosaic-card card-r1-c1">
@@ -136,9 +136,9 @@ export const Home: React.FC = () => {
             </section>
 
             {/* Offers of the month with Responsive Slider */}
-            <section className="offers-section">
-                <div className="container offers-container">
-                    <h2 className="home-section-title">OFERTAS DEL MES</h2>
+            <section style={{ padding: '6rem 0' }}>
+                <div className="container" style={{ textAlign: 'center' }}>
+                    <h2 className="section-title">OFERTAS DEL MES</h2>
 
                     {/* Persistent Countdown */}
                     <div className="countdown-wrapper">
@@ -172,6 +172,7 @@ export const Home: React.FC = () => {
                                 }}
                                 className="slider-track"
                                 style={{
+                                    display: 'flex',
                                     transition: transitionEnabled ? 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)' : 'none',
                                     transform: `translateX(calc(-${(offers.length + currentIndex) * (100 / (window.innerWidth < 768 ? 1 : 4))}%))`
                                 }}
@@ -192,7 +193,7 @@ export const Home: React.FC = () => {
                         </button>
                     </div>
 
-                    <div className="all-offers-btn-container">
+                    <div style={{ marginTop: '4rem' }}>
                         <button className="btn-primary all-offers-btn">VER TODO</button>
                     </div>
 
@@ -228,6 +229,8 @@ export const Home: React.FC = () => {
                 </div>
             </section>
 
+
+
             <TestimonialsSection />
 
             {/* WhatsApp Floating */}
@@ -235,7 +238,22 @@ export const Home: React.FC = () => {
                 href="https://wa.me/981182158"
                 target="_blank"
                 rel="noreferrer"
-                className="whatsapp-float"
+                style={{
+                    position: 'fixed',
+                    bottom: '30px',
+                    right: '30px',
+                    backgroundColor: '#25D366',
+                    color: '#fff',
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                    zIndex: 1000,
+                    transition: 'var(--transition)'
+                }}
             >
                 <MessageCircle size={32} />
             </a>
