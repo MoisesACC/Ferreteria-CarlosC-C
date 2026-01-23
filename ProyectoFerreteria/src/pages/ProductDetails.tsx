@@ -17,6 +17,7 @@ import {
 import type { Producto } from '../types';
 import api from '../api/api';
 import { useCart } from '../context/CartContext';
+import '../styles/ProductDetails.css';
 
 export const ProductDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -55,8 +56,54 @@ export const ProductDetails: React.FC = () => {
     };
 
     if (loading) return (
-        <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="loader"></div>
+        <div className="product-details-container">
+            {/* Skeleton Breadcrumb */}
+            <div className="container">
+                <div className="skeleton-box sk-breadcrumb"></div>
+            </div>
+
+            <div className="container">
+                <main className="product-layout">
+                    {/* Left: Skeleton Gallery */}
+                    <div className="left-column">
+                        <div className="sk-gallery-area">
+                            <div className="sk-thumbs">
+                                {[1, 2, 3, 4].map(i => <div key={i} className="skeleton-box sk-thumb-item"></div>)}
+                            </div>
+                            <div className="skeleton-box sk-main-img"></div>
+                        </div>
+                        <div className="skeleton-box sk-trust"></div>
+                    </div>
+
+                    {/* Right: Skeleton Info */}
+                    <div className="product-content">
+                        <div className="product-sticky">
+                            <div className="sk-meta">
+                                <div className="skeleton-box sk-cat"></div>
+                                <div className="skeleton-box sk-icons"></div>
+                            </div>
+
+                            <div className="skeleton-box sk-title"></div>
+                            <div className="skeleton-box sk-rating"></div>
+
+                            <div className="skeleton-box sk-price"></div>
+                            <div className="skeleton-box sk-promo"></div>
+
+                            <div className="sk-desc-lines">
+                                <div className="skeleton-box sk-line"></div>
+                                <div className="skeleton-box sk-line"></div>
+                                <div className="skeleton-box sk-line"></div>
+                                <div className="skeleton-box sk-line short"></div>
+                            </div>
+
+                            <div className="sk-actions">
+                                <div className="skeleton-box sk-btn"></div>
+                                <div className="skeleton-box sk-btn"></div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
         </div>
     );
 
@@ -280,168 +327,6 @@ export const ProductDetails: React.FC = () => {
                     </div>
                 </section>
             </div>
-
-            <style>{`
-                .product-details-container { padding-bottom: 5rem; background: #fff; }
-                
-                /* Breadcrumb */
-                .breadcrumb { background: #f8f9fa; padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid #eee; }
-                .breadcrumb .container { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
-                .breadcrumb a { color: #666; text-decoration: none; transition: 0.2s; }
-                .breadcrumb a:hover { color: var(--primary); }
-                .breadcrumb .current { color: #aaa; font-weight: 500; }
-
-                /* Main Layout */
-                .product-layout { display: grid; grid-template-columns: 1fr 450px; gap: 4rem; margin-bottom: 5rem; }
-                
-                /* Gallery */
-                .left-column { display: flex; flex-direction: column; gap: 2rem; }
-                .product-gallery { display: flex; gap: 1.5rem; }
-                .thumb-carousel { display: flex; flex-direction: column; gap: 1rem; width: 80px; }
-                .thumb-item { width: 80px; height: 80px; border-radius: 12px; border: 1px solid #eee; padding: 8px; cursor: pointer; transition: 0.3s; background: #fff; overflow: hidden; }
-                .thumb-item.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
-                .thumb-item img { width: 100%; height: 100%; object-fit: contain; }
-                .main-display { flex: 1; background: #fff; border-radius: 24px; border: 1px solid #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 550px; }
-                .main-image-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-                .main-image-container img { max-width: 100%; max-height: 120%; object-fit: contain; }
-
-                /* Content */
-                .content-sticky { position: sticky; top: 100px; }
-                .meta-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-                .category-label { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; font-weight: 800; color: #888; border-left: 3px solid var(--primary); padding-left: 10px; }
-                .utility-buttons { display: flex; gap: 10px; }
-                .icon-btn { background: #f8f9fa; border: none; padding: 10px; border-radius: 50%; cursor: pointer; color: #444; transition: 0.2s; }
-                .icon-btn:hover { background: #eee; color: var(--primary); }
-
-                .title-text { font-size: 2.8rem; font-weight: 950; line-height: 1.1; margin-bottom: 1rem; color: #1a1a1a; }
-                .rating-summary { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
-                .review-count { font-size: 1rem; color: #777; font-weight: 600; }
-                
-                .price-display { margin-bottom: 2.5rem; }
-                .current-price { display: flex; align-items: flex-start; color: var(--primary); font-weight: 950; }
-                .current-price .symbol { font-size: 1.5rem; margin-top: 10px; margin-right: 5px; }
-                .current-price .value { font-size: 4rem; line-height: 1; }
-                
-                .discount-block { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-                .was-price { font-size: 1.2rem; color: #999; text-decoration: line-through; }
-                .save-badge { background: #e6fffa; color: #008080; font-size: 0.8rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
-
-                .short-desc { margin-bottom: 3rem; color: #666; line-height: 1.6; font-size: 1.05rem; }
-                .see-more-link { background: none; border: none; padding: 0; margin-left: 6px; color: var(--primary); font-weight: 800; cursor: pointer; text-decoration: underline; font-size: 0.95rem; }
-                .see-more-link:hover { color: #000; }
-
-                .buying-actions { display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 3rem; }
-                .quantity-control .label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #999; margin-bottom: 8px; }
-                .control-box { display: flex; align-items: center; justify-content: space-between; border: 2px solid #eee; border-radius: 12px; padding: 10px; }
-                .control-box button { background: none; border: none; cursor: pointer; color: #1a1a1a; display: flex; align-items: center; }
-                .control-box .count { font-weight: 900; font-size: 1.1rem; }
-                
-                .add-button { background: #000; color: #fff; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-                .add-button:hover { background: var(--primary); color: #000; transform: translateY(-2px); }
-                .add-button.success { background: #34C759; color: #fff; }
-
-                .trust-ribbon { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; padding: 1.5rem; background: #f9f9f9; border-radius: 16px; margin-top: 1rem; }
-                .trust-card { display: flex; flex-direction: row; align-items: center; gap: 1rem; color: #666; padding: 0.5rem; transition: 0.3s; }
-                .trust-card:hover { transform: translateY(-3px); }
-                .trust-card svg { color: var(--primary); min-width: 28px; height: 28px; }
-                .card-text { display: flex; flex-direction: column; justify-content: center; }
-                .trust-card strong { font-size: 0.9rem; font-weight: 800; color: #1a1a1a; line-height: 1.2; margin-bottom: 2px; }
-                .trust-card span { font-size: 0.75rem; color: #888; font-weight: 500; }
-
-                /* Tabs Section */
-                .details-tabs { border-top: 1px solid #eee; padding-top: 3rem; }
-                .tabs-nav { display: flex; gap: 4rem; border-bottom: 1px solid #eee; margin-bottom: 3rem; }
-                .tabs-nav button { background: none; border: none; padding: 1.5rem 0; font-weight: 800; font-size: 1.1rem; color: #999; cursor: pointer; border-bottom: 4px solid transparent; transition: 0.3s; }
-                .tabs-nav button.active { color: #1a1a1a; border-bottom-color: var(--primary); }
-                
-                .tabs-body { min-height: 200px; padding-bottom: 4rem; }
-                .description-rich h3 { font-size: 1.8rem; margin-bottom: 1.5rem; font-weight: 900; }
-                .description-rich p { color: #555; line-height: 1.8; font-size: 1.1rem; }
-                .brand-highlight { margin-top: 2rem; font-size: 1.1rem; }
-                
-                .specs-table { width: 100%; max-width: 600px; border-collapse: collapse; }
-                .specs-table th { text-align: left; padding: 1.5rem 0; border-bottom: 1px solid #eee; color: #888; font-weight: 600; }
-                .specs-table td { text-align: right; padding: 1.5rem 0; border-bottom: 1px solid #eee; font-weight: 800; color: #1a1a1a; }
-                .stock-status .in-stock { color: #34C759; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
-
-                @media (max-width: 1024px) {
-                    .product-layout { grid-template-columns: 1fr; gap: 3rem; }
-                    .content-sticky { position: static; }
-                    .main-display { height: 400px; }
-                    .left-column { gap: 1.5rem; }
-                }
-
-                @media (max-width: 768px) {
-                    .product-details-container { padding-bottom: 2rem; }
-                    .product-layout { gap: 1.5rem; margin-bottom: 3rem; }
-                    
-                    /* Gallery Mobile */
-                    .product-gallery { flex-direction: column-reverse; gap: 1rem; }
-                    
-                    /* Thumbnails: Robust Scroll Track */
-                    .thumb-carousel { 
-                        display: grid;
-                        grid-auto-flow: column;
-                        grid-auto-columns: 80px; /* Width + Gap space */
-                        gap: 1rem;
-                        
-                        width: 100%;
-                        max-width: calc(100vw - 2rem); /* Force constraint within viewport minus padding */
-                        
-                        overflow-x: auto; 
-                        overscroll-behavior-x: contain; /* Prevent scrolling parent page */
-                        
-                        padding: 0.5rem 0.5rem 1rem 0.5rem;
-                        scrollbar-width: none;
-                        
-                        /* Scroll Snapping for premium feel */
-                        scroll-snap-type: x mandatory;
-                        
-                        mask-image: linear-gradient(to right, black 85%, transparent 100%);
-                        -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
-                    }
-                    .thumb-carousel::-webkit-scrollbar { display: none; }
-                    
-                    .thumb-item { 
-                        width: 70px; 
-                        height: 70px; 
-                        border-radius: 12px; 
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                        scroll-snap-align: start; /* Snap to images */
-                    }
-                    
-                    .main-display { height: 320px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-                    .main-image-container { padding: 1.5rem; }
-                    .main-image-container img { max-height: 100%; max-width: 100%; object-fit: contain; }
-
-                    /* Trust Ribbon Stack for Mobile */
-                    .trust-ribbon { grid-template-columns: 1fr; gap: 0.8rem; padding: 1rem; margin-top: 0; }
-                    .trust-card { 
-                        padding: 0.8rem 1rem; 
-                        background: #fff; 
-                        border-radius: 12px; 
-                        border: 1px solid #f0f0f0; 
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-                    }
-                    
-                    /* Info Section */
-                    .meta-info { margin-bottom: 0.5rem; }
-                    .title-text { font-size: 1.8rem; margin-bottom: 0.5rem; line-height: 1.2; }
-                    .category-label { font-size: 0.7rem; }
-                    .current-price .value { font-size: 2.5rem; }
-                    
-                    /* Actions Stack */
-                    .buying-actions { grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 2rem; }
-                    .quantity-control { margin-bottom: 0.2rem; }
-                    .control-box { padding: 10px; }
-                    .add-button { padding: 14px; font-size: 1rem; }
-
-                    /* Tabs */
-                    .details-tabs { padding-top: 2rem; }
-                    .tabs-nav { gap: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
-                    .tabs-nav button { font-size: 1rem; padding: 0.5rem 0; }
-                }
-            `}</style>
         </div>
     );
 };
