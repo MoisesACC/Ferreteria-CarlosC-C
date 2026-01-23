@@ -27,6 +27,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { Logo } from '../components/Logo';
 import { GenerarComprobanteModal } from '../components/GenerarComprobanteModal';
 import Swal from 'sweetalert2';
+import '../styles/AdminPanel.css';
 
 interface Comprobante {
     id: string;
@@ -51,20 +52,7 @@ interface SidebarItemProps {
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, active, onClick }) => (
     <button
         onClick={onClick}
-        style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            padding: '1rem 1.2rem',
-            backgroundColor: active ? 'var(--primary)' : 'transparent',
-            color: active ? '#000' : 'var(--text-main)',
-            borderRadius: '12px',
-            marginBottom: '0.5rem',
-            fontWeight: '600',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            textAlign: 'left'
-        }}
+        className={`sidebar-btn ${active ? 'active' : ''}`}
     >
         {icon}
         <span style={{ flex: 1 }}>{label}</span>
@@ -533,84 +521,6 @@ export const AdminPanel: React.FC = () => {
                         <ThemeToggle />
                     </div>
                 </header>
-
-                <style>{`
-                    .admin-header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 2.5rem;
-                    }
-
-                    .no-hover-move:hover {
-                        transform: none !important;
-                    }
-
-                    .mobile-admin-header {
-                        display: none;
-                        background: var(--bg-main);
-                        padding: 1rem;
-                        border-bottom: 1px solid var(--border-color);
-                        justify-content: space-between;
-                        align-items: center;
-                        position: sticky;
-                        top: 0;
-                        z-index: 2000;
-                    }
-
-                    .admin-main {
-                        flex: 1;
-                        padding: 2.5rem 3.5rem;
-                        margin-left: 280px;
-                        transition: 0.3s;
-                    }
-
-                    @media (max-width: 992px) {
-                        .admin-sidebar {
-                            transform: translateX(-100%);
-                        }
-                        .admin-sidebar.open {
-                            transform: translateX(0);
-                        }
-                        .admin-main {
-                            margin-left: 0;
-                            padding: 1.5rem;
-                        }
-                        .mobile-admin-header {
-                            display: flex;
-                        }
-                        .admin-header {
-                            flex-direction: column;
-                            align-items: flex-start !important;
-                            gap: 1.5rem;
-                            margin-bottom: 1.5rem;
-                        }
-                        .admin-header button {
-                            width: auto;
-                        }
-                        .hide-on-mobile { display: none; }
-                        .desktop-only { display: none; }
-                    }
-
-                    @media (max-width: 768px) {
-                        .admin-header h1 {
-                            font-size: 1.5rem !important;
-                        }
-                        
-                        .dashboard-grid {
-                            grid-template-columns: 1fr !important;
-                        }
-                        
-                        .dashboard-stats-grid {
-                           grid-template-columns: 1fr !important;
-                        }
-
-                        .admin-table-wrapper {
-                            overflow-x: auto;
-                            -webkit-overflow-scrolling: touch;
-                        }
-                    }
-                `}</style>
 
                 {/* Dashboard Stats */}
                 {activeTab === 'dashboard' && (

@@ -1,24 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Target, TrendingUp, Heart } from 'lucide-react';
+import '../styles/AboutUs.css';
 
 export const AboutUs: React.FC = () => {
     return (
-        <div style={{ backgroundColor: 'var(--bg-main)', color: 'var(--text-main)', overflow: 'hidden' }}>
+        <div className="about-page">
             {/* Hero Section */}
-            <section style={{
-                position: 'relative',
-                height: '60vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url("https://png.pngtree.com/background/20231016/original/pngtree-d-illustration-of-diverse-construction-tools-screwdriver-level-electrical-tape-hammer-picture-image_5579557.jpg") center/cover fixed'
-            }}>
-                <div style={{ textAlign: 'center', maxWidth: '800px', padding: '0 2rem' }}>
+            <section className="about-hero">
+                <div className="hero-content">
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: '900', color: 'var(--primary)', marginBottom: '1.5rem' }}
+                        className="hero-title"
                     >
                         NUESTRA HISTORIA
                     </motion.h1>
@@ -26,7 +20,7 @@ export const AboutUs: React.FC = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        style={{ fontSize: '1.2rem', color: '#fff', opacity: 0.9, lineHeight: '1.6' }}
+                        className="hero-subtitle"
                     >
                         Desde un pequeño taller hasta convertirnos en el aliado estratégico de la construcción en el Perú.
                     </motion.p>
@@ -34,14 +28,14 @@ export const AboutUs: React.FC = () => {
             </section>
 
             {/* Story Timeline Section */}
-            <section style={{ padding: '8rem 5%' }}>
+            <section className="timeline-section">
                 <div className="container">
-                    <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-                        <h2 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '1rem' }}>Cómo Empezamos</h2>
-                        <div style={{ width: '80px', height: '4px', backgroundColor: 'var(--primary)', margin: '0 auto' }}></div>
+                    <div className="section-header">
+                        <h2 className="section-title">Cómo Empezamos</h2>
+                        <div className="section-underline"></div>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
+                    <div className="timeline-container">
                         {/* 1995: The Beginning */}
                         <div className="story-row">
                             <motion.div
@@ -115,41 +109,38 @@ export const AboutUs: React.FC = () => {
             </section>
 
             {/* Values Section */}
-            <section style={{ backgroundColor: 'rgba(253, 185, 19, 0.05)', padding: '8rem 5%' }}>
+            <section className="values-section">
                 <div className="container">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem' }}>
+                    <div className="values-grid">
                         <motion.div
                             whileHover={{ y: -10 }}
-                            className="glass-card"
-                            style={{ padding: '3rem', textAlign: 'center' }}
+                            className="glass-card value-card"
                         >
-                            <Target size={48} color="var(--primary)" style={{ marginBottom: '1.5rem' }} />
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem' }}>Nuestra Misión</h3>
-                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+                            <Target size={48} color="var(--primary)" className="value-icon" />
+                            <h3 className="value-title">Nuestra Misión</h3>
+                            <p className="value-text">
                                 Proveer las mejores herramientas y materiales de construcción, facilitando el desarrollo de proyectos con productos de alta calidad y un servicio especializado que supere las expectativas.
                             </p>
                         </motion.div>
 
                         <motion.div
                             whileHover={{ y: -10 }}
-                            className="glass-card"
-                            style={{ padding: '3rem', textAlign: 'center' }}
+                            className="glass-card value-card"
                         >
-                            <TrendingUp size={48} color="var(--primary)" style={{ marginBottom: '1.5rem' }} />
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem' }}>Nuestra Visión</h3>
-                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+                            <TrendingUp size={48} color="var(--primary)" className="value-icon" />
+                            <h3 className="value-title">Nuestra Visión</h3>
+                            <p className="value-text">
                                 Ser la ferretería e-commerce líder en el Perú, reconocida por nuestra innovación tecnológica, logística impecable y el compromiso inquebrantable con el éxito de nuestros clientes.
                             </p>
                         </motion.div>
 
                         <motion.div
                             whileHover={{ y: -10 }}
-                            className="glass-card"
-                            style={{ padding: '3rem', textAlign: 'center' }}
+                            className="glass-card value-card"
                         >
-                            <Heart size={48} color="var(--primary)" style={{ marginBottom: '1.5rem' }} />
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem' }}>Nuestros Valores</h3>
-                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+                            <Heart size={48} color="var(--primary)" className="value-icon" />
+                            <h3 className="value-title">Nuestros Valores</h3>
+                            <p className="value-text">
                                 Honestidad, responsabilidad, trabajo en equipo y excelencia en el servicio son los pilares que nos han permitido crecer y ganar la confianza de miles de peruanos.
                             </p>
                         </motion.div>
@@ -158,91 +149,28 @@ export const AboutUs: React.FC = () => {
             </section>
 
             {/* Stats Section */}
-            <section style={{ padding: '8rem 5%', backgroundColor: '#000', color: '#fff' }}>
+            <section className="stats-section">
                 <div className="container">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '4rem', textAlign: 'center' }}>
+                    <div className="stats-grid">
                         <div>
-                            <h4 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--primary)', marginBottom: '0.5rem' }}>25+</h4>
-                            <p style={{ opacity: 0.7, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.8rem' }}>Años de Experiencia</p>
+                            <h4 className="stat-number">25+</h4>
+                            <p className="stat-label">Años de Experiencia</p>
                         </div>
                         <div>
-                            <h4 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--primary)', marginBottom: '0.5rem' }}>10k+</h4>
-                            <p style={{ opacity: 0.7, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.8rem' }}>Clientes Felices</p>
+                            <h4 className="stat-number">10k+</h4>
+                            <p className="stat-label">Clientes Felices</p>
                         </div>
                         <div>
-                            <h4 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--primary)', marginBottom: '0.5rem' }}>500+</h4>
-                            <p style={{ opacity: 0.7, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.8rem' }}>Marcas Aliadas</p>
+                            <h4 className="stat-number">500+</h4>
+                            <p className="stat-label">Marcas Aliadas</p>
                         </div>
                         <div>
-                            <h4 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--primary)', marginBottom: '0.5rem' }}>24h</h4>
-                            <p style={{ opacity: 0.7, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.8rem' }}>Envíos Rápidos</p>
+                            <h4 className="stat-number">24h</h4>
+                            <p className="stat-label">Envíos Rápidos</p>
                         </div>
                     </div>
                 </div>
             </section>
-
-            <style>{`
-                .story-row {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 5rem;
-                    align-items: center;
-                }
-                .story-row.reverse {
-                    direction: rtl;
-                }
-                .story-row.reverse .story-content {
-                    direction: ltr;
-                }
-                .story-content {
-                    padding: 2rem;
-                }
-                .year-badge {
-                    display: inline-block;
-                    background: var(--primary);
-                    color: #000;
-                    padding: 5px 20px;
-                    border-radius: 4px;
-                    font-weight: 900;
-                    font-size: 1.2rem;
-                    margin-bottom: 2rem;
-                }
-                .story-content h3 {
-                    font-size: 2.2rem;
-                    font-weight: 900;
-                    margin-bottom: 1.5rem;
-                }
-                .story-content p {
-                    font-size: 1.1rem;
-                    line-height: 1.8;
-                    color: var(--text-muted);
-                }
-                .story-image {
-                    height: 400px;
-                    background-size: cover;
-                    background-position: center;
-                    border-radius: 24px;
-                    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-                }
-
-                @media (max-width: 992px) {
-                    .story-row {
-                        grid-template-columns: 1fr;
-                        gap: 3rem;
-                        text-align: center;
-                    }
-                    .story-row.reverse {
-                        direction: ltr;
-                    }
-                    .story-image {
-                        order: 2;
-                        height: 300px;
-                    }
-                    .story-content {
-                        order: 1;
-                    }
-                }
-            `}</style>
         </div>
     );
 };

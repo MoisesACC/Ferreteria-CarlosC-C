@@ -6,6 +6,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
+import '../styles/Login.css';
 
 export const Login: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -73,44 +74,29 @@ export const Login: React.FC = () => {
     };
 
     return (
-        <div style={{
-            minHeight: '80vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem'
-        }}>
+        <div className="login-page">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-card"
-                style={{ width: '100%', maxWidth: '450px', padding: '3rem' }}
+                className="glass-card login-card"
             >
-                <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                    <div style={{ marginBottom: '2rem' }}>
+                <div className="auth-header">
+                    <div className="logo-container">
                         <Logo width={250} />
                     </div>
-                    <h2 style={{ fontSize: '2rem' }}>{isLogin ? 'Bienvenido' : 'Únete a nosotros'}</h2>
-                    <p style={{ color: 'var(--text-muted)' }}>
+                    <h2 className="auth-title">{isLogin ? 'Bienvenido' : 'Únete a nosotros'}</h2>
+                    <p className="auth-subtitle">
                         {isLogin ? 'Ingresa para gestionar tus proyectos' : 'Crea una cuenta para compras más rápidas'}
                     </p>
                 </div>
 
                 {error && (
-                    <div style={{
-                        backgroundColor: 'rgba(255, 59, 48, 0.1)',
-                        color: '#FF3B30',
-                        padding: '1rem',
-                        borderRadius: '8px',
-                        marginBottom: '1.5rem',
-                        fontSize: '0.9rem',
-                        textAlign: 'center'
-                    }}>
+                    <div className="error-alert">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <form onSubmit={handleSubmit} className="auth-form">
                     {!isLogin && (
                         <div className="input-group">
                             <label><User size={18} /> Nombre</label>
@@ -148,28 +134,20 @@ export const Login: React.FC = () => {
 
                     <button
                         type="submit"
-                        className="btn-primary"
+                        className="btn-primary btn-auth-submit"
                         disabled={loading}
-                        style={{
-                            marginTop: '1rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem',
-                            opacity: loading ? 0.7 : 1
-                        }}
                     >
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? 'Iniciar Sesión' : 'Registrarse')}
+                        {loading ? <Loader2 className="loader-spin" size={20} /> : (isLogin ? 'Iniciar Sesión' : 'Registrarse')}
                         {!loading && <ArrowRight size={20} />}
                     </button>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1rem 0' }}>
-                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>O continúa con</span>
-                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+                    <div className="divider-container">
+                        <div className="divider-line"></div>
+                        <span className="divider-text">O continúa con</span>
+                        <div className="divider-line"></div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <div className="google-container">
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
                             onError={() => setError('Error en la autenticación de Google')}
@@ -181,51 +159,13 @@ export const Login: React.FC = () => {
                     </div>
                 </form>
 
-                <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div className="auth-footer">
                     {isLogin ? (
-                        <p>¿No tienes cuenta? <button type="button" style={{ background: 'transparent', color: 'var(--primary)', fontWeight: 'bold' }} onClick={() => setIsLogin(false)}>Regístrate</button></p>
+                        <p>¿No tienes cuenta? <button type="button" className="btn-link" onClick={() => setIsLogin(false)}>Regístrate</button></p>
                     ) : (
-                        <p>¿Ya tienes cuenta? <button type="button" style={{ background: 'transparent', color: 'var(--primary)', fontWeight: 'bold' }} onClick={() => setIsLogin(true)}>Inicia sesión</button></p>
+                        <p>¿Ya tienes cuenta? <button type="button" className="btn-link" onClick={() => setIsLogin(true)}>Inicia sesión</button></p>
                     )}
                 </div>
-
-                <style>{`
-          .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-          }
-          .input-group label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-          }
-          .input-group input {
-            padding: 12px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--input-text);
-            transition: var(--transition);
-          }
-          .input-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-          }
-          .animate-spin {
-            animation: spin 1s linear infinite;
-          }
-          @media (max-width: 480px) {
-            .glass-card {
-                padding: 1.5rem !important;
-            }
-            h2 {
-                font-size: 1.5rem !important;
-            }
-          }
-        `}</style>
             </motion.div>
         </div>
     );
