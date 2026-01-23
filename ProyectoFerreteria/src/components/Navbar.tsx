@@ -13,7 +13,7 @@ import {
     ChevronRight,
     HelpCircle
 } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
+
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Logo } from './Logo';
@@ -60,8 +60,6 @@ export const Navbar: React.FC = () => {
 
                     {/* Right side Actions */}
                     <div className="nav-actions">
-                        {/* Theme Toggle centered vertically with other items */}
-                        <div className="desktop-only action-item"><ThemeToggle /></div>
 
                         {/* Mobile Only: Search Icon and Cart with Badge */}
                         <div className="mobile-actions">

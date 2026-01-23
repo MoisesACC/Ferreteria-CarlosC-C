@@ -21,12 +21,12 @@ export const Home: React.FC = () => {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
-        // Persistent Countdown Logic
-        let endDate = localStorage.getItem('offer_end_date');
+        // Persistent Countdown Logic - Updated to 10 days
+        let endDate = localStorage.getItem('offer_end_date_v2');
         if (!endDate) {
-            const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
-            endDate = (Date.now() + threeDaysInMs).toString();
-            localStorage.setItem('offer_end_date', endDate);
+            const tenDaysInMs = 10 * 24 * 60 * 60 * 1000; // 10 days
+            endDate = (Date.now() + tenDaysInMs).toString();
+            localStorage.setItem('offer_end_date_v2', endDate);
         }
 
         const targetDate = parseInt(endDate);
